@@ -5,12 +5,14 @@ export class LoginPage {
     private readonly usernameField: Locator;
     private readonly passwordField: Locator;
     private readonly loginButton: Locator;
+    private readonly loginErrorMessage: Locator;
 
     constructor(page: Page) {
         this.page = page;
         this.usernameField = page.locator('input[name="username"]');
         this.passwordField = page.locator('input[name="password"]');
         this.loginButton = page.getByRole('button', {name: 'Log In'});
+        this.loginErrorMessage = page.locator('p.error');
     }
 
     async login(username: string, password: string) {
@@ -23,5 +25,10 @@ export class LoginPage {
         await expect(this.usernameField).toBeVisible();
         await expect(this.passwordField).toBeVisible();
         await expect(this.loginButton).toBeVisible();
+    }
+
+    async validateFailedLogin() {
+        await expect(this.loginErrorMessage).toBeVisible();
+        await expect(this.loginErrorMessage).toContainText('could not be verified');
     }
 }
