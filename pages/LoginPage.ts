@@ -1,6 +1,6 @@
 import {Page, Locator, expect} from "@playwright/test";
 
-export class LoginPage{
+export class LoginPage {
     private readonly page: Page;
     private readonly usernameField: Locator;
     private readonly passwordField: Locator;
@@ -10,7 +10,7 @@ export class LoginPage{
         this.page = page;
         this.usernameField = page.locator('input[name="username"]');
         this.passwordField = page.locator('input[name="password"]');
-        this.loginButton = page.getByRole('button', { name: 'Log In' });
+        this.loginButton = page.getByRole('button', {name: 'Log In'});
     }
 
     async login(username: string, password: string) {

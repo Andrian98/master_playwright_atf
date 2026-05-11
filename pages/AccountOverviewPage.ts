@@ -7,7 +7,7 @@ export class AccountOverviewPage {
 
     constructor(page: Page) {
         this.page = page;
-        this.logOutButton = page.getByRole('link', { name: 'Log Out' });
+        this.logOutButton = page.getByRole('link', {name: 'Log Out'});
     }
 
     async isPageLoaded() {
