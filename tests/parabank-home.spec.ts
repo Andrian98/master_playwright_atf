@@ -1,4 +1,4 @@
-import {test, expect} from '@playwright/test';
+import {test} from '@playwright/test';
 import {LoginPage} from '../pages/LoginPage';
 import {AccountOverviewPage} from '../pages/AccountOverviewPage';
 import {users} from '../test-data/users';
@@ -18,6 +18,6 @@ test('validate failed login', async ({page}) => {
     const loginPage = new LoginPage(page);
     await page.goto('https://parabank.parasoft.com/parabank/index.htm');
     await loginPage.login(users.invalidUser.username, users.invalidUser.password);
-    await expect(page.getByText('The username and password could not be verified.')).toBeVisible();
+    await loginPage.validateFailedLogin();
 
 })
