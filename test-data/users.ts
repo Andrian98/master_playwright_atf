@@ -1,4 +1,3 @@
-
 export const users = {
     validUser: {
         username: 'perf-user',
