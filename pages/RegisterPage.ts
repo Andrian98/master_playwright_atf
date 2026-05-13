@@ -16,6 +16,8 @@ export class RegisterPage {
     private readonly passwordField: Locator;
     private readonly confirmPasswordField: Locator;
     private readonly registerButton: Locator;
+    private readonly welcomeTitle: Locator;
+    private readonly registrationSuccessMessage: Locator;
 
     constructor(page: Page) {
         this.page = page;
@@ -31,6 +33,8 @@ export class RegisterPage {
         this.passwordField = page.locator('#customer\\.password');
         this.confirmPasswordField = page.locator('#repeatedPassword');
         this.registerButton = page.getByRole('button', {name: 'Register'});
+        this.welcomeTitle = page.locator('h1.title');
+        this.registrationSuccessMessage = page.getByText('Your account was created successfully. You are now logged in.');
     }
 
     async register(user: typeof users.registerUser) {
@@ -47,4 +51,10 @@ export class RegisterPage {
         await this.confirmPasswordField.fill(user.confirmPassword);
         await this.registerButton.click();
     }
+
+    async validateSuccessfulRegistration(username: string) {
+        await expect(this.welcomeTitle).toHaveText(`Welcome ${username}`);
+        await expect(this.registrationSuccessMessage).toBeVisible();
+    }
+
 }
