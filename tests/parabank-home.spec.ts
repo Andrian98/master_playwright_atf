@@ -2,22 +2,25 @@ import {test} from '@playwright/test';
 import {LoginPage} from '../pages/LoginPage';
 import {AccountOverviewPage} from '../pages/AccountOverviewPage';
 import {users} from '../test-data/users';
+import {environment} from '../config/environment';
 
-test('validate successful login', async ({page}) => {
+test.describe('Login Functionality', () => {
+    let loginPage: LoginPage;
 
-    const loginPage = new LoginPage(page);
-    const accountOverviewPage = new AccountOverviewPage(page);
+    test.beforeEach(async ({page}) => {
+        loginPage = new LoginPage(page);
+        await page.goto(`${environment.baseUrl}${environment.loginPath}`);
+        await loginPage.isPageLoaded();
+    });
 
-    await page.goto('https://parabank.parasoft.com/parabank/index.htm');
-    await loginPage.isPageLoaded();
-    await loginPage.login(users.validUser.username, users.validUser.password);
-    await accountOverviewPage.isPageLoaded();
+    test('validate successful login', async ({page}) => {
+        await loginPage.login(users.validUser.username, users.validUser.password);
+        const accountOverviewPage = new AccountOverviewPage(page);
+        await accountOverviewPage.isPageLoaded();
+    });
+
+    test('validate failed login', async ({page}) => {
+        await loginPage.login(users.invalidUser.username, users.invalidUser.password);
+        await loginPage.validateFailedLogin();
+    });
 });
-
-test('validate failed login', async ({page}) => {
-    const loginPage = new LoginPage(page);
-    await page.goto('https://parabank.parasoft.com/parabank/index.htm');
-    await loginPage.login(users.invalidUser.username, users.invalidUser.password);
-    await loginPage.validateFailedLogin();
-
-})
