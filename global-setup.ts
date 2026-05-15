@@ -18,7 +18,7 @@ export default async function globalSetup() {
     await registerPage.register(users.registerUser);
     await registerPage.validateSuccessfulRegistration(users.registerUser.username);
 
-
+    await context.close();
     await browser.close();
 
 }

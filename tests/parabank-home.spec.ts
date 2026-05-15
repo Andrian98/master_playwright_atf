@@ -1,8 +1,8 @@
 import {test} from '@playwright/test';
 import {LoginPage} from '../pages/LoginPage';
-import {AccountOverviewPage} from '../pages/AccountOverviewPage';
 import {users} from '../test-data/users';
 import {environment} from '../config/environment';
+import {SideMenu} from "../pages/components/SideMenu";
 
 test.describe('Login Functionality', () => {
     let loginPage: LoginPage;
@@ -15,8 +15,8 @@ test.describe('Login Functionality', () => {
 
     test('validate successful login', async ({page}) => {
         await loginPage.login(users.validUser.username, users.validUser.password);
-        const accountOverviewPage = new AccountOverviewPage(page);
-        await accountOverviewPage.isPageLoaded();
+        const sideMenu = new SideMenu(page);
+        await sideMenu.isLoaded();
     });
 
     test('validate failed login', async ({page}) => {
