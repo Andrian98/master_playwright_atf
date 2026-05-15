@@ -5,6 +5,7 @@ import {environment} from "../../config/environment";
 import {users} from "../../test-data/users";
 import {SideMenu} from "../../pages/components/SideMenu";
 import {AccountOverviewPage} from "../../pages/AccountOverviewPage";
+import {logger} from "../../utils/logger";
 
 
 test.describe('Open New Account Functionality', () => {
@@ -25,13 +26,13 @@ test.describe('Open New Account Functionality', () => {
         const openNewAccountPage = new OpenNewAccountPage(page);
         await openNewAccountPage.isPageLoaded();
         const newAccountId = await openNewAccountPage.openNewAccount();
-        console.log(`New account created: ${newAccountId}`);
+        logger.info(`New account created: ${newAccountId}`);
 
         await sideMenu.navigateToAccountsOverview();
         const accountOverviewPage = new AccountOverviewPage(page);
         await accountOverviewPage.isPageLoaded();
         await accountOverviewPage.validateAccountExists(newAccountId);
-        console.log(`Account overview page exists: ${newAccountId}`);
+        logger.info(`Account overview page exists: ${newAccountId}`);
 
     });
 
