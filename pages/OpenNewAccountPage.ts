@@ -22,11 +22,18 @@ export class OpenNewAccountPage {
         await expect(this.openNewAccountButton).toBeVisible();
     }
 
-    async openNewAccount() {
+    async openNewAccount(): Promise<string>  {
         await this.accountTypeDropdown.selectOption({label: 'CHECKING'});
         await this.fromAccountDropdown.selectOption({index: 0});
         await this.openNewAccountButton.click();
         await expect(this.accountCreatedSuccessMessage).toBeVisible();
+        await expect(this.accountCreatedSuccessMessage).toContainText('Congratulations, your account is now open.');
         await expect(this.newAccountId).toBeVisible();
+
+        const newId = await this.newAccountId.textContent();
+        if (!newId) {
+            throw new Error("Account was created but ID could not be read from the page.");
+        }
+        return newId.trim();
     }
 }

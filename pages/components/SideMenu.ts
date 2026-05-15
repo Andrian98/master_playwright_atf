@@ -1,4 +1,4 @@
-import {Locator, Page} from "@playwright/test";
+import {expect, Locator, Page} from "@playwright/test";
 
 export class SideMenu {
 
@@ -14,6 +14,14 @@ export class SideMenu {
         this.transferFundsLink = page.getByRole('link', {name: 'Transfer Funds'});
         this.requestLoanLink = page.getByRole('link', {name: 'Request Loan'});
         this.logoutLink = page.getByRole('link', {name: 'Log Out'});
+    }
+
+    async isLoaded() {
+        await expect(this.openNewAccountLink).toBeVisible();
+        await expect(this.accountsOverviewLink).toBeVisible();
+        await expect(this.transferFundsLink).toBeVisible();
+        await expect(this.requestLoanLink).toBeVisible();
+        await expect(this.logoutLink).toBeVisible();
     }
 
     async navigateToOpenNewAccount() {
