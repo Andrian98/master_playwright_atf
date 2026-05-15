@@ -52,7 +52,7 @@ export class AdminPage {
         await expect(this.webServiceSOAP).toHaveValue('');
         await this.webServiceRest.clear();
         await expect(this.webServiceRest).toHaveValue('');
-        await  this.loanProcessorService.clear();
+        await this.loanProcessorService.clear();
         await expect(this.loanProcessorService).toHaveValue('');
         await this.initBalance.clear();
         await this.initBalance.fill('5150.50');

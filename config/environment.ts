@@ -4,4 +4,6 @@ export const environment = {
     loginPath: '/index.htm',
     adminPath: '/admin.htm',
     registerPath: '/register.htm',
+    authStatePath: 'playwright/.auth/user.json',
+    openNewAccountPath: '/openaccount.htm'
 };

@@ -14,12 +14,12 @@ test.describe('Login Functionality', () => {
     });
 
     test('validate successful login', async ({page}) => {
-        await loginPage.login(users.validUser.username, users.validUser.password);
         const sideMenu = new SideMenu(page);
+        await loginPage.login(users.validUser.username, users.validUser.password);
         await sideMenu.isLoaded();
     });
 
-    test('validate failed login', async ({page}) => {
+    test('validate failed login', async ({}) => {
         await loginPage.login(users.invalidUser.username, users.invalidUser.password);
         await loginPage.validateFailedLogin();
     });
