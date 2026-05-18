@@ -26,4 +26,11 @@ export class AccountOverviewPage {
         await expect(this.accountTable).toBeVisible();
         await expect(this.accountTable.getByText(accountID)).toBeVisible();
     }
+
+    async getAccountIds(): Promise<string[]> {
+        await expect(this.accountLinks.first()).toBeVisible();
+        const accountIds = await this.accountLinks.allInnerTexts();
+
+        return accountIds.map(id => id.trim());
+    }
 }
