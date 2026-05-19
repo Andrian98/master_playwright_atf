@@ -22,7 +22,7 @@ export class OpenNewAccountPage {
         await expect(this.openNewAccountButton).toBeVisible();
     }
 
-    async openNewAccount(): Promise<string>  {
+    async openNewAccount(): Promise<string> {
         await this.accountTypeDropdown.selectOption({label: 'CHECKING'});
         await this.fromAccountDropdown.selectOption({index: 0});
         await this.openNewAccountButton.click();
