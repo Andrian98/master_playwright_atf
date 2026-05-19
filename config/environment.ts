@@ -8,4 +8,5 @@ export const environment = {
     openNewAccountPath: '/openaccount.htm',
     transferFundsPath: '/transfer.htm',
     accountOverviewPath: '/overview.htm',
+    requestLoanPath: '/requestloan.htm',
 };
