@@ -9,4 +9,5 @@ export const environment = {
     transferFundsPath: '/transfer.htm',
     accountOverviewPath: '/overview.htm',
     requestLoanPath: '/requestloan.htm',
+    apiBasePath: '/services/bank',
 };
