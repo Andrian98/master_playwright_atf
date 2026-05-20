@@ -11,7 +11,11 @@ export class BankApiClient {
 
     async get(endpoint: string): Promise<APIResponse> {
         const url = `${environment.baseUrl}${environment.apiBasePath}${endpoint}`;
-        return await this.request.get(url);
+        return await this.request.get(url, {
+            headers: {
+                accept: 'application/json',
+            }
+        });
     }
 
     async post(endpoint: string, body?: unknown): Promise<APIResponse>{
