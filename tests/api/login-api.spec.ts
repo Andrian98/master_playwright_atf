@@ -21,4 +21,12 @@ test.describe('Login API functionality', () => {
         expect(responseJson.ssn).toBe(users.registerUser.ssn);
         logger.info(`API login successful for user: ${users.validUser.username}`);
     });
+
+    test('login with invalid credentials', async () => {
+        const response = await accountApiService.login(users.invalidUser.username, users.invalidUser.password);
+        expect(response.status()).toBe(400);
+        const responseText = await response.text();
+        expect(responseText).toContain('Invalid username and/or password');
+        logger.info(`API login failed as expected for user: ${users.invalidUser.username}`);
+    });
 });
