@@ -34,5 +34,10 @@ export const accountData = {
     apiLoan: {
         type: 2,
         label: 'LOAN',
-    }
+    },
+
+    invalidCustomerId: {
+        customerId: 11111,
+    },
+
 };

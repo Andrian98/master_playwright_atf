@@ -14,10 +14,8 @@ test.describe('Account API functionality', () => {
         accountApiService = new AccountApiService(new BankApiClient(request));
 
         const loginResponse = await accountApiService.login(users.validUser.username, users.validUser.password);
-        logger.info(`Successfully logged in with username: ${users.validUser.username}`);
         const loginJson = await loginResponse.json();
         customerId = loginJson.id;
-        logger.info(`Successfully received customer id: ${customerId}`);
     });
 
     test('create account with valid details', async () => {
@@ -36,5 +34,22 @@ test.describe('Account API functionality', () => {
         expect(newAccountData.balance).toBe(0);
         expect(newAccountData.id).toBeDefined();
         logger.info(`Successfully created new ${accountData.apiChecking.label} account with ID: ${newAccountData.id}`);
+    });
+
+    test('user cannot create an account with the invalid id', async () => {
+        const getAccountId = await accountApiService.getAccounts(customerId);
+        expect(getAccountId.status()).toBe(200);
+        const accounts: any[] = await getAccountId.json();
+        if (accounts.length === 0) {
+            throw new Error('No accounts found for the customer. Please ensure the customer has at least one account before running this test.');
+        }
+        const fromAccountId = accounts[0].id;
+
+        const invalidCustomerId = accountData.invalidCustomerId.customerId;
+        const response = await accountApiService.createAccount(invalidCustomerId, accountData.apiChecking.type, fromAccountId);
+        expect(response.status()).toBe(400);
+        const responseText = await response.text();
+        expect(responseText).toContain(`Could not create new account for customer ${invalidCustomerId} from account ${fromAccountId}`);
+        logger.info(`Account creation failed as expected with invalid customer ID: ${invalidCustomerId}`);
     });
 });
