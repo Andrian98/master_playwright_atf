@@ -4,6 +4,8 @@ import {BankApiClient} from "../../api/clients/BankApiClient";
 import {users} from "../../test-data/users";
 import {accountData} from "../../test-data/input-data";
 import {logger} from "../../utils/logger";
+import {Customer} from "../../api/models/Customer";
+import {Account} from "../../api/models/Account";
 
 
 test.describe('Account API functionality', () => {
@@ -12,23 +14,22 @@ test.describe('Account API functionality', () => {
 
     test.beforeEach(async ({request}) => {
         accountApiService = new AccountApiService(new BankApiClient(request));
-
         const loginResponse = await accountApiService.login(users.validUser.username, users.validUser.password);
-        const loginJson = await loginResponse.json();
+        const loginJson: Customer = await loginResponse.json();
         customerId = loginJson.id;
     });
 
     test('create account with valid details', async () => {
         const getAccountId = await accountApiService.getAccounts(customerId);
         expect(getAccountId.status()).toBe(200);
-        const accounts: any[] = await getAccountId.json();
+        const accounts: Account[] = await getAccountId.json();
         if (accounts.length === 0) {
             throw new Error('No accounts found for the customer. Please ensure the customer has at least one account before running this test.');
         }
         const fromAccountId = accounts[0].id;
         const response = await accountApiService.createAccount(customerId, accountData.apiChecking.type, fromAccountId);
         expect(response.status()).toBe(200);
-        const newAccountData = await response.json();
+        const newAccountData: Account = await response.json();
         expect(newAccountData.customerId).toBe(customerId);
         expect(newAccountData.type).toBe(accountData.apiChecking.label);
         expect(newAccountData.balance).toBe(0);
@@ -39,7 +40,7 @@ test.describe('Account API functionality', () => {
     test('user cannot create an account with the invalid id', async () => {
         const getAccountId = await accountApiService.getAccounts(customerId);
         expect(getAccountId.status()).toBe(200);
-        const accounts: any[] = await getAccountId.json();
+        const accounts: Account[] = await getAccountId.json();
         if (accounts.length === 0) {
             throw new Error('No accounts found for the customer. Please ensure the customer has at least one account before running this test.');
         }
