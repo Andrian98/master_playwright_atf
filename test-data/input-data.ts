@@ -19,5 +19,20 @@ export const accountData = {
     savings: {
         type: 'SAVINGS',
         initialDeposit: '1000'
+    },
+
+    apiChecking: {
+        type: 0,
+        label: 'CHECKING',
+    },
+
+    apiSavings: {
+        type: 1,
+        label: 'SAVINGS',
+    },
+
+    apiLoan: {
+        type: 2,
+        label: 'LOAN',
     }
 };
