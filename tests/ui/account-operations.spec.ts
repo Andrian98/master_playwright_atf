@@ -2,6 +2,7 @@ import {test} from "../../fixtures/appFixtures";
 import {logger} from "../../utils/logger";
 import {environment} from "../../config/environment";
 import {accountData, loanData} from "../../test-data/input-data";
+import {captureCheckpoint} from "../../utils/evidenceHelper";
 
 
 test.describe('Account Operations', () => {
@@ -17,6 +18,7 @@ test.describe('Account Operations', () => {
         await accountOverviewPage.isPageLoaded();
         await accountOverviewPage.validateAccountExists(newAccountId);
         logger.info(`Account overview page exists: ${newAccountId}`);
+        await captureCheckpoint(page, `New Account ${newAccountId} Created`);
     });
 
     test('transfer funds from one account to another account', async ({page, accountOverviewPage, sideMenu, transferFundsPage}) => {
@@ -32,6 +34,7 @@ test.describe('Account Operations', () => {
         await transferFundsPage.transferFunds(accountData.checking.initialDeposit, accountIds[0], accountIds[1]);
         await transferFundsPage.validateTransferSuccess(accountData.checking.initialDeposit, accountIds[0], accountIds[1]);
         logger.info(`Transferred ${accountData.checking.initialDeposit} from account ${accountIds[0]} to account ${accountIds[1]}`);
+        await captureCheckpoint(page, `Transferred ${accountData.checking.initialDeposit} from ${accountIds[0]} to ${accountIds[1]}`);
     });
 
     test('successfully apply for a loan', async ({page, accountOverviewPage, sideMenu, requestLoanPage}) => {
@@ -47,5 +50,6 @@ test.describe('Account Operations', () => {
         await requestLoanPage.requestLoan(loanData.validLoanRequest.amount, loanData.validLoanRequest.downPayment, accountIds[0]);
         const newLoanId = await requestLoanPage.validateLoanApproved();
         logger.info(`Loan approved with new account ID: ${newLoanId}`);
+        await captureCheckpoint(page, `Loan Approved with Account ${newLoanId}`);
     });
 });
