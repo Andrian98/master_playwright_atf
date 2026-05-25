@@ -7,7 +7,7 @@ export type ApiFixtures = {
     accountApiService: AccountApiService;
 };
 
-export const test = base.extend<ApiFixtures>(
+export const apiFixtures = base.extend<ApiFixtures>(
     {
         accountApiService: async ({request}, use) => {
             const apiClient = new BankApiClient(request);
@@ -15,5 +15,3 @@ export const test = base.extend<ApiFixtures>(
             await use(apiService);
         }
     });
-
-export {expect} from "@playwright/test";

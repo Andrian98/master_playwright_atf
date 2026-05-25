@@ -1,4 +1,4 @@
-import {expect, test} from "../../fixtures/apiFixtures";
+import {expect, test} from "../../fixtures/appFixtures";
 import {users} from "../../test-data/users";
 import {accountData} from "../../test-data/input-data";
 import {logger} from "../../utils/logger";
