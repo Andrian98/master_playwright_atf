@@ -1,6 +1,4 @@
-import {expect, test} from "@playwright/test";
-import {AccountApiService} from "../../api/services/AccountApiService";
-import {BankApiClient} from "../../api/clients/BankApiClient";
+import {expect, test} from "../../fixtures/apiFixtures";
 import {users} from "../../test-data/users";
 import {accountData} from "../../test-data/input-data";
 import {logger} from "../../utils/logger";
@@ -8,15 +6,13 @@ import {Account} from "../../api/models/Account";
 
 
 test.describe('Account API functionality', () => {
-    let accountApiService: AccountApiService;
     let customerId: number;
 
-    test.beforeEach(async ({request}) => {
-        accountApiService = new AccountApiService(new BankApiClient(request));
+    test.beforeEach(async ({accountApiService}) => {
         customerId = await accountApiService.getCustomerId(users.validUser.username, users.validUser.password);
     });
 
-    test('create account with valid details', async () => {
+    test('create account with valid details', async ({accountApiService}) => {
         const fromAccountId = await accountApiService.getFirstAccountId(customerId);
         const response = await accountApiService.createAccount(customerId, accountData.apiChecking.type, fromAccountId);
         expect(response.status()).toBe(200);
@@ -28,7 +24,7 @@ test.describe('Account API functionality', () => {
         logger.info(`Successfully created new ${accountData.apiChecking.label} account with ID: ${newAccountData.id}`);
     });
 
-    test('user cannot create an account with the invalid id', async () => {
+    test('user cannot create an account with the invalid id', async ({accountApiService}) => {
         const fromAccountId = await accountApiService.getFirstAccountId(customerId);
         const invalidCustomerId = accountData.invalidCustomerId.customerId;
         const response = await accountApiService.createAccount(invalidCustomerId, accountData.apiChecking.type, fromAccountId);
