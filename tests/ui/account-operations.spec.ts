@@ -1,28 +1,13 @@
-import {test} from "@playwright/test";
-import {OpenNewAccountPage} from "../../pages/OpenNewAccountPage";
-import {SideMenu} from "../../pages/components/SideMenu";
-import {AccountOverviewPage} from "../../pages/AccountOverviewPage";
+import {test} from "../../fixtures/appFixtures";
 import {logger} from "../../utils/logger";
 import {environment} from "../../config/environment";
-import {TransferFundsPage} from "../../pages/TransferFundsPage";
-import {RequestLoanPage} from "../../pages/RequestLoanPage";
 import {accountData, loanData} from "../../test-data/input-data";
 
 
 test.describe('Account Operations', () => {
     test.describe.configure({mode: 'serial'});
-    let openNewAccountPage: OpenNewAccountPage;
-    let accountOverviewPage: AccountOverviewPage;
-    let sideMenu: SideMenu;
 
-    test.beforeEach(async ({page}) => {
-        openNewAccountPage = new OpenNewAccountPage(page);
-        accountOverviewPage = new AccountOverviewPage(page);
-        sideMenu = new SideMenu(page);
-    });
-
-
-    test('should open a new checking account', async ({page}) => {
+    test('should open a new checking account', async ({page, openNewAccountPage, accountOverviewPage, sideMenu}) => {
         await page.goto(`${environment.baseUrl}${environment.openNewAccountPath}`);
         await openNewAccountPage.isPageLoaded();
         const newAccountId = await openNewAccountPage.openNewAccount();
@@ -34,9 +19,7 @@ test.describe('Account Operations', () => {
         logger.info(`Account overview page exists: ${newAccountId}`);
     });
 
-    test('transfer funds from one account to another account', async ({page}) => {
-        const transferFundsPage = new TransferFundsPage(page);
-
+    test('transfer funds from one account to another account', async ({page, accountOverviewPage, sideMenu, transferFundsPage}) => {
         await page.goto(`${environment.baseUrl}${environment.accountOverviewPath}`);
         await accountOverviewPage.isPageLoaded();
         const accountIds = await accountOverviewPage.getAccountIds();
@@ -51,8 +34,7 @@ test.describe('Account Operations', () => {
         logger.info(`Transferred ${accountData.checking.initialDeposit} from account ${accountIds[0]} to account ${accountIds[1]}`);
     });
 
-    test('successfully apply for a loan', async ({page}) => {
-        const requestLoanPage = new RequestLoanPage(page);
+    test('successfully apply for a loan', async ({page, accountOverviewPage, sideMenu, requestLoanPage}) => {
         await page.goto(`${environment.baseUrl}${environment.accountOverviewPath}`);
         await accountOverviewPage.isPageLoaded();
         const accountIds = await accountOverviewPage.getAccountIds();
