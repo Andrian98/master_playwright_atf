@@ -78,3 +78,12 @@ export const getScreenshotsDir = (domain: 'ui' | 'api'): string => {
     }
     return screenshotsPath;
 };
+
+export const getApiEvidenceDir = (): string => {
+    const masterRunDir = process.env.ACTIVE_RUN_DIR || BASE_EVIDENCE_DIR;
+    const apiFailuresPath = path.join(masterRunDir, 'api', 'failures');
+    if (!fs.existsSync(apiFailuresPath)) {
+        fs.mkdirSync(apiFailuresPath, { recursive: true });
+    }
+    return apiFailuresPath;
+};
