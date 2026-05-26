@@ -16,12 +16,10 @@ export default defineConfig({
 
     use: {
         storageState: environment.authStatePath,
-
         trace: 'retain-on-failure',
         screenshot: 'only-on-failure',
         video: 'retain-on-failure',
     },
-
     /* Configure projects for major browsers */
     projects: [
         {

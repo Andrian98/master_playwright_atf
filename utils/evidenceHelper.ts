@@ -1,21 +1,20 @@
 import * as path from 'path';
 import {Locator, Page} from "@playwright/test";
-import * as fs from 'fs';
 import {logger} from "./logger";
+import {getScreenshotsDir} from "./evidenceManager";
 
-
-const EVIDENCE_DIRECTORY = path.join(process.cwd(), 'test-results', 'evidence');
-
-export const captureCheckpoint = async (target: Page | Locator, checkpointName: string) => {
-    if (!fs.existsSync(EVIDENCE_DIRECTORY)) {
-        fs.mkdirSync(EVIDENCE_DIRECTORY, {recursive: true});
-    }
-
+export const captureCheckpoint = async (target: Page | Locator, checkpointName: string, domain: 'ui' | 'api' = 'ui') => {
     const sanitizedName = checkpointName.toLowerCase().replace(/[^a-z0-9]/g, '-');
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const fileName = `${sanitizedName}_${timestamp}.png`;
-    const filePath = path.join(EVIDENCE_DIRECTORY, fileName);
-
+    const now = new Date();
+    const options: Intl.DateTimeFormatOptions = {
+        timeZone: 'Europe/Chisinau',
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hour12: false
+    };
+    const localTimeStr = now.toLocaleTimeString('en-US', options).replace(/:/g, '-').trim();
+    const fileName = `${sanitizedName}_${localTimeStr}.png`;
+    const targetFolder = getScreenshotsDir(domain);
+    const filePath = path.join(targetFolder, fileName);
     const isPage = 'context' in target;
 
     await target.screenshot({
@@ -25,4 +24,4 @@ export const captureCheckpoint = async (target: Page | Locator, checkpointName: 
     });
     logger.info(`Evidence captured: ${filePath}`);
     return filePath;
-}
+};
