@@ -15,6 +15,7 @@ export default defineConfig({
     ],
 
     use: {
+        baseURL: environment.baseUrl,
         storageState: environment.authStatePath,
         trace: 'retain-on-failure',
         screenshot: 'only-on-failure',

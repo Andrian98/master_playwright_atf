@@ -18,7 +18,7 @@ export class BankApiClient {
     }
 
     async get(endpoint: string): Promise<APIResponse> {
-        const url = `${environment.baseUrl}${environment.apiBasePath}${endpoint}`;
+        const url = `${environment.apiBaseUrl}${endpoint}`;
         const headers = {'accept': 'application/json'};
         this.lastRequestData = {
             url,
@@ -32,7 +32,7 @@ export class BankApiClient {
     }
 
     async post(endpoint: string, body?: unknown): Promise<APIResponse> {
-        const url = `${environment.baseUrl}${environment.apiBasePath}${endpoint}`;
+        const url = `${environment.apiBaseUrl}${endpoint}`;
         const headers = {
             'Content-Type': 'application/json',
             'accept': 'application/json'
