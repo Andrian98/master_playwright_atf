@@ -14,12 +14,9 @@ export const captureApiFailureEvidence = async (response: APIResponse, testName:
     const targetFolder = getApiEvidenceDir();
     const filePath = path.join(targetFolder, fileName);
 
-    let responseBody = '';
-    try {
-        responseBody = await response.text();
-    } catch (e) {
-        responseBody = `[Could not parse response body: ${e instanceof Error ? e.message : String(e)}]`;
-    }
+    const responseBody = await response.text().catch(e =>
+        `[Could not parse response body: ${e instanceof Error ? e.message : String(e)}]`
+    );
 
     const logContent = [
         `===================================================================`,

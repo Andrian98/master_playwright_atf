@@ -4,7 +4,7 @@ import {Customer} from "../models/Customer";
 import {Account} from "../models/Account";
 
 export class AccountApiService {
-    private readonly apiClient: BankApiClient;
+    public readonly apiClient: BankApiClient;
 
     constructor(apiClient: BankApiClient) {
         this.apiClient = apiClient;
@@ -27,6 +27,9 @@ export class AccountApiService {
 
     async getCustomerId(username: string, password: string): Promise<number> {
         const loginResponse = await this.login(username, password);
+        if (loginResponse.status() !== 200) {
+            throw new Error(`Failed to log in to fetch Customer ID. Status: ${loginResponse.status()}`);
+        }
         const loginJson: Customer = await loginResponse.json();
         return loginJson.id;
     };
