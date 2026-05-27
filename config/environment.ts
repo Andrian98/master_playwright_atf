@@ -1,6 +1,7 @@
 export const environment = {
     name: 'test',
     baseUrl: 'https://parabank.parasoft.com/parabank',
+    apiBaseUrl: 'https://parabank.parasoft.com/parabank/services/bank',
     loginPath: '/index.htm',
     adminPath: '/admin.htm',
     registerPath: '/register.htm',
@@ -9,5 +10,4 @@ export const environment = {
     transferFundsPath: '/transfer.htm',
     accountOverviewPath: '/overview.htm',
     requestLoanPath: '/requestloan.htm',
-    apiBasePath: '/services/bank',
 };

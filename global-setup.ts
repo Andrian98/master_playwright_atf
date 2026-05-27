@@ -4,9 +4,11 @@ import {environment} from "./config/environment";
 import {RegisterPage} from "./pages/RegisterPage";
 import {users} from "./test-data/users";
 import {SideMenu} from "./pages/components/SideMenu";
+import {initializeMasterDir} from "./utils/evidenceManager";
 
 
 export default async function globalSetup() {
+    process.env.ACTIVE_RUN_DIR = initializeMasterDir();
     const browser = await chromium.launch();
     const context = await browser.newContext();
     const page = await context.newPage();

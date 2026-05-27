@@ -4,7 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "cross-env NODE_OPTIONS='--no-deprecation' playwright test"
+    "test": "cross-env NODE_OPTIONS='--no-deprecation' playwright test",
+    "test:ui": "cross-env NODE_OPTIONS='--no-deprecation' playwright test tests/ui",
+    "test:api": "cross-env NODE_OPTIONS='--no-deprecation' playwright test tests/api",
+    "test:ci": "cross-env CI=true NODE_OPTIONS='--no-deprecation' playwright test tests --workers=2 --retries=1",
+    "clean": "node -e \"['evidence', 'playwright-report', 'test-results', 'snapshots'].forEach(d => fs.rmSync(d, {recursive: true, force: true}))\"",
+    "report": "playwright show-report"
   },
   "keywords": [],
   "author": "",
