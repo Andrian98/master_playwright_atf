@@ -1,6 +1,7 @@
 # IntelliJ
 .idea/
 *.iml
+/lib/
 
 # Playwright
 node_modules/
