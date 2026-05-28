@@ -1,8 +1,10 @@
 pipeline {
     agent none
+
     tools {
         dockerTool 'default'
     }
+
     options {
         timestamps()
     }
@@ -15,47 +17,21 @@ pipeline {
     }
 
     stages {
-//        stage('Run on Linux') {
-//            when { expression { params.AGENT_TYPE == 'linux' } }
-//            agent { label 'linux' }
-//            steps {
-//                echo "Selected AGENT_TYPE = ${params.AGENT_TYPE}"
-//                sh 'npm ci'
-//                sh 'npx playwright install --with-deps chromium'
-//                sh 'npm run clean'
-//                sh 'npm run test:ci'
-//            }
-//        }
-
-//        stage('Run on Windows') {
-//            when { expression { params.AGENT_TYPE == 'windows' } }
-//            agent { label 'windows' }
-//            steps {
-//                echo "Selected AGENT_TYPE = ${params.AGENT_TYPE}"
-//                bat 'npm ci'
-//                bat 'npx playwright install chromium'
-//                bat 'npm run clean'
-//                bat 'npm run test:ci'
-//            }
-//        }
-
-        stage('Run in Docker') {
+        stage('Diagnostic and Tool Verification') {
             when { expression { params.AGENT_TYPE == 'docker' } }
-            agent {
-                docker {
-                    image 'mcr.microsoft.com/playwright:v1.59.1-noble'
-                }
-            }
+            // Force execution on the built-in controller node so it doesn't crash on agent startup
+            agent { label 'built-in' }
             steps {
-                echo "Selected AGENT_TYPE = ${params.AGENT_TYPE}"
-                sh 'npm ci'
-                sh 'npm run clean'
-                sh 'npm run test:ci'
-            }
-            post {
-                always {
-                    archiveArtifacts artifacts: 'playwright-report/**, test-results/**, evidence/**', allowEmptyArchive: true
-                }
+                echo "=== DIAGNOSTIC LOGS ==="
+                echo "Current PATH environment variable:"
+                sh 'echo $PATH'
+
+                echo "Checking if Jenkins downloaded the tool to the tools directory:"
+                sh 'ls -la /var/jenkins_home/tools/org.jenkinsci.plugins.docker.commons.tools.DockerTool/ || echo "Tool folder not found"'
+
+                echo "Testing if the docker command works when explicitly running from a shell step:"
+                sh 'docker --version || echo "Docker CLI still not found in path"'
+                echo "======================="
             }
         }
     }
