@@ -13,29 +13,29 @@ pipeline {
     }
 
     stages {
-        stage('Run on Linux') {
-            when { expression { params.AGENT_TYPE == 'linux' } }
-            agent { label 'linux' }
-            steps {
-                echo "Selected AGENT_TYPE = ${params.AGENT_TYPE}"
-                sh 'npm ci'
-                sh 'npx playwright install --with-deps chromium'
-                sh 'npm run clean'
-                sh 'npm run test:ci'
-            }
-        }
+//        stage('Run on Linux') {
+//            when { expression { params.AGENT_TYPE == 'linux' } }
+//            agent { label 'linux' }
+//            steps {
+//                echo "Selected AGENT_TYPE = ${params.AGENT_TYPE}"
+//                sh 'npm ci'
+//                sh 'npx playwright install --with-deps chromium'
+//                sh 'npm run clean'
+//                sh 'npm run test:ci'
+//            }
+//        }
 
-        stage('Run on Windows') {
-            when { expression { params.AGENT_TYPE == 'windows' } }
-            agent { label 'windows' }
-            steps {
-                echo "Selected AGENT_TYPE = ${params.AGENT_TYPE}"
-                bat 'npm ci'
-                bat 'npx playwright install chromium'
-                bat 'npm run clean'
-                bat 'npm run test:ci'
-            }
-        }
+//        stage('Run on Windows') {
+//            when { expression { params.AGENT_TYPE == 'windows' } }
+//            agent { label 'windows' }
+//            steps {
+//                echo "Selected AGENT_TYPE = ${params.AGENT_TYPE}"
+//                bat 'npm ci'
+//                bat 'npx playwright install chromium'
+//                bat 'npm run clean'
+//                bat 'npm run test:ci'
+//            }
+//        }
 
         stage('Run in Docker') {
             when { expression { params.AGENT_TYPE == 'docker' } }
