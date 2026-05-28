@@ -42,6 +42,7 @@ pipeline {
             agent { label 'built-in' }
             steps {
                 echo "Selected AGENT_TYPE = ${params.AGENT_TYPE}"
+
                 withDockerContainer(image: 'mcr.microsoft.com/playwright:v1.59.1-noble') {
                     sh 'npm ci'
                     sh 'npm run clean'
