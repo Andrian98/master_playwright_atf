@@ -43,7 +43,7 @@ pipeline {
             steps {
                 echo "Selected AGENT_TYPE = ${params.AGENT_TYPE}"
 
-                withDockerContainer(image: 'mcr.microsoft.com/playwright:v1.59.1-noble') {
+                withDockerContainer(image: 'mcr.microsoft.com/playwright:v1.60.0-noble') {
                     sh 'npm ci'
                     sh 'npm run clean'
                     sh 'npm run test:ci'
