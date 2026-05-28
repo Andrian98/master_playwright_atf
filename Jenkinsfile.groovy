@@ -22,17 +22,20 @@ pipeline {
 
                         sh '''
                             echo "Checking target application accessibility..."
-                            # Captures the response code, defaulting to 000 if the network drops the connection completely
+                            # Captures the response code, defaulting to 000 if the network drops the connection
                             HTTP_STATUS=$(curl -s -I -o /dev/null -w "%{http_code}" https://parabank.parasoft.com/parabank || echo "000")
                             echo "Application responded with HTTP Status Code: $HTTP_STATUS"
 
-                            # Checks for common successful/accessible HTTP codes (including redirection and authentication endpoints)
-                            if [[ "$HTTP_STATUS" =~ ^(200|301|302|401|405)$ ]]; then
-                                echo "✅ SUCCESS: Target environment is online and responsive."
-                            else
-                                echo "⚠️ WARNING: Target application is unreachable via standard curl (Status: $HTTP_STATUS)."
-                                echo "This is likely a container network restriction. Proceeding to Docker test suite execution..."
-                            fi
+                            # Using standard POSIX case matching to ensure compatibility across all Linux shells
+                            case "$HTTP_STATUS" in
+                                200|301|302|401|405)
+                                    echo "✅ SUCCESS: Target environment is online and responsive."
+                                    ;;
+                                *)
+                                    echo "⚠️ WARNING: Target application returned unexpected status (Status: $HTTP_STATUS)."
+                                    echo "Proceeding to Docker test suite execution anyway..."
+                                    ;;
+                            esac
                         '''
                     }
                 }
