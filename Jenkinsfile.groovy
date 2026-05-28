@@ -41,11 +41,11 @@ pipeline {
             when { expression { params.AGENT_TYPE == 'docker' } }
             agent {
                 docker {
-                    echo "Selected AGENT_TYPE = ${params.AGENT_TYPE}"
                     image 'mcr.microsoft.com/playwright:v1.59.1-noble'
                 }
             }
             steps {
+            echo "Selected AGENT_TYPE = ${params.AGENT_TYPE}"
                 sh 'npm ci'
                 sh 'npm run clean'
                 sh 'npm run test:ci'
