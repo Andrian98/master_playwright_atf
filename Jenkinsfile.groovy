@@ -1,6 +1,8 @@
 pipeline {
     agent none
-
+    tools {
+        dockerTool 'default'
+    }
     options {
         timestamps()
     }
@@ -43,10 +45,6 @@ pipeline {
                 docker {
                     image 'mcr.microsoft.com/playwright:v1.59.1-noble'
                 }
-            }
-            tools {
-                // Tells Jenkins to provision the local 'docker' CLI command tool instantly
-                dockerTool 'default'
             }
             steps {
                 echo "Selected AGENT_TYPE = ${params.AGENT_TYPE}"
