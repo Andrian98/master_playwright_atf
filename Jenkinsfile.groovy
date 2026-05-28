@@ -44,18 +44,21 @@ pipeline {
                     image 'mcr.microsoft.com/playwright:v1.59.1-noble'
                 }
             }
+            tools {
+                // Tells Jenkins to provision the local 'docker' CLI command tool instantly
+                dockerTool 'default'
+            }
             steps {
-            echo "Selected AGENT_TYPE = ${params.AGENT_TYPE}"
+                echo "Selected AGENT_TYPE = ${params.AGENT_TYPE}"
                 sh 'npm ci'
                 sh 'npm run clean'
                 sh 'npm run test:ci'
             }
-        }
-    }
-
-    post {
-        always {
-            archiveArtifacts artifacts: 'playwright-report/**, test-results/**, evidence/**', allowEmptyArchive: true
+            post {
+                always {
+                    archiveArtifacts artifacts: 'playwright-report/**, test-results/**, evidence/**', allowEmptyArchive: true
+                }
+            }
         }
     }
 }
