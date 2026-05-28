@@ -17,6 +17,7 @@ pipeline {
             when { expression { params.AGENT_TYPE == 'linux' } }
             agent { label 'linux' }
             steps {
+                echo "Selected AGENT_TYPE = ${params.AGENT_TYPE}"
                 sh 'npm ci'
                 sh 'npx playwright install --with-deps chromium'
                 sh 'npm run clean'
@@ -28,6 +29,7 @@ pipeline {
             when { expression { params.AGENT_TYPE == 'windows' } }
             agent { label 'windows' }
             steps {
+                echo "Selected AGENT_TYPE = ${params.AGENT_TYPE}"
                 bat 'npm ci'
                 bat 'npx playwright install chromium'
                 bat 'npm run clean'
@@ -39,6 +41,7 @@ pipeline {
             when { expression { params.AGENT_TYPE == 'docker' } }
             agent {
                 docker {
+                    echo "Selected AGENT_TYPE = ${params.AGENT_TYPE}"
                     image 'mcr.microsoft.com/playwright:v1.59.1-noble'
                 }
             }
