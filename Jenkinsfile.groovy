@@ -7,7 +7,7 @@ pipeline {
     parameters {
         choice(
             name: 'AGENT_TYPE',
-            choices: ['linux', 'windows', 'docker'],
+            choices: ['docker', 'windows', 'linux'],
             description: 'Select Jenkins execution environment'
         )
     }
