@@ -70,21 +70,23 @@ pipeline {
                         }
                     }
                 }
-            }
+                stage('Process Test Results & Generate Reports') {
+                    steps {
+                            post {
+                                always {
+                                    echo '=================================================='
+                                    echo '🗄️ POST ACTION: COLLECTING TEST BUILD EVIDENCE & REPORTS'
+                                    echo '=================================================='
 
-            post {
-                always {
-                    echo '=================================================='
-                    echo '🗄️ POST ACTION: COLLECTING TEST BUILD EVIDENCE & REPORTS'
-                    echo '=================================================='
+                                    archiveArtifacts artifacts: 'playwright-report/**, test-results/**, evidence/**', allowEmptyArchive: true
 
-                    archiveArtifacts artifacts: 'playwright-report/**, test-results/**, evidence/**', allowEmptyArchive: true
-
-                    echo '=================================================='
-                    echo '✅ SUCCESS: All build evidence processing complete!'
-                    echo '=================================================='
-                }
-            }
+                                    echo '=================================================='
+                                    echo '✅ SUCCESS: All build evidence processing complete!'
+                                    echo '=================================================='
+                                }
+                            }
+                         }
+                      }
         }
     }
 }
