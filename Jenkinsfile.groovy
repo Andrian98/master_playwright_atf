@@ -43,7 +43,7 @@ pipeline {
             when { expression { params.AGENT_TYPE == 'docker' } }
             agent { label 'built-in' }
 
-           stages {
+            stages {
                 stage('Install & Clean') {
                     steps {
                         echo '=================================================='
@@ -65,28 +65,32 @@ pipeline {
                         echo '=================================================='
                         echo '🎭 STAGE: EXECUTING PLAYWRIGHT ATF TEST SUITE'
                         echo '=================================================='
-                        withDockerContainer(image: 'mcr.microsoft.com/playwright:v1.60.0-noble') {
-                            sh 'npm run test:ci'
+
+                        // catchError ensures that test failures don't stop the pipeline execution,
+                        // allowing the next stage to collect and archive the test results.
+                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                            withDockerContainer(image: 'mcr.microsoft.com/playwright:v1.60.0-noble') {
+                                sh 'npm run test:ci'
+                            }
                         }
                     }
                 }
+
                 stage('Process Test Results & Generate Reports') {
                     steps {
-                          echo '=================================================='
-                          echo '🗄️ POST ACTION: COLLECTING TEST BUILD EVIDENCE & REPORTS'
-                          echo '=================================================='
+                        echo '=================================================='
+                        echo '🗄️ STAGE: COLLECTING TEST BUILD EVIDENCE & REPORTS'
+                        echo '=================================================='
+
+                        // The archiving steps live natively right inside the stage execution blocks
+                        archiveArtifacts artifacts: 'playwright-report/**, test-results/**, evidence/**', allowEmptyArchive: true
+
+                        echo '=================================================='
+                        echo '✅ SUCCESS: All build evidence processing complete!'
+                        echo '=================================================='
                     }
                 }
-                 post {
-                        always {
-                                 archiveArtifacts artifacts: 'playwright-report/**, test-results/**, evidence/**', allowEmptyArchive: true
-
-                                 echo '=================================================='
-                                 echo '✅ SUCCESS: All build evidence processing complete!'
-                                 echo '=================================================='
-                        }
-                 }
-           }
+            }
         }
     }
 }
