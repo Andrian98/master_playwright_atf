@@ -15,38 +15,36 @@ pipeline {
 
     stages {
         stage('Pre-Flight Health Check') {
-                    agent { label 'built-in' }
-                    steps {
-                        echo '=================================================='
-                        echo '🚀 STARTING PRE-FLIGHT ENVIRONMENT HEALTH CHECK'
-                        echo '=================================================='
+            agent { label 'built-in' }
+            steps {
+                echo '=================================================='
+                echo '🚀 STARTING PRE-FLIGHT ENVIRONMENT HEALTH CHECK'
+                echo '=================================================='
 
-                        sh '''
-                            echo "Checking target application accessibility..."
-                            # Captures the response code, defaulting to 000 if the network drops the connection
-                            HTTP_STATUS=$(curl -s -I -o /dev/null -w "%{http_code}" https://parabank.parasoft.com/parabank || echo "000")
-                            echo "Application responded with HTTP Status Code: $HTTP_STATUS"
+                sh '''
+                    echo "Checking target application accessibility..."
+                    HTTP_STATUS=$(curl -s -I -o /dev/null -w "%{http_code}" https://parabank.parasoft.com/parabank || echo "000")
+                    echo "Application responded with HTTP Status Code: $HTTP_STATUS"
 
-                            # Using standard POSIX case matching to ensure compatibility across all Linux shells
-                            case "$HTTP_STATUS" in
-                                200|301|302|401|405)
-                                    echo "✅ SUCCESS: Target environment is online and responsive."
-                                    ;;
-                                *)
-                                    echo "⚠️ WARNING: Target application returned unexpected status (Status: $HTTP_STATUS)."
-                                    echo "Proceeding to Docker test suite execution anyway..."
-                                    ;;
-                            esac
-                        '''
-                    }
-                }
+                    case "$HTTP_STATUS" in
+                        200|301|302|401|405)
+                            echo "✅ SUCCESS: Target environment is online and responsive."
+                            ;;
+                        *)
+                            echo "⚠️ WARNING: Target application returned unexpected status (Status: $HTTP_STATUS)."
+                            echo "Proceeding to Docker test suite execution anyway..."
+                            ;;
+                    esac
+                '''
+            }
+        }
+
         stage('Docker Automation Pipeline') {
             when { expression { params.AGENT_TYPE == 'docker' } }
             agent { label 'built-in' }
             steps {
                 echo "Initializing environment for AGENT_TYPE = ${params.AGENT_TYPE}"
 
-                // Keep the container open across all sub-stages nested inside it
                 withDockerContainer(image: 'mcr.microsoft.com/playwright:v1.60.0-noble') {
 
                     stage('Install & Clean') {
@@ -71,17 +69,15 @@ pipeline {
             }
             post {
                 always {
-                    stage('Archive Test Evidence') {
-                        echo '=================================================='
-                        echo '🗄️ STAGE: COLLECTING TEST BUILD EVIDENCE & REPORTS'
-                        echo '=================================================='
+                    echo '=================================================='
+                    echo '🗄️ POST ACTION: COLLECTING TEST BUILD EVIDENCE & REPORTS'
+                    echo '=================================================='
 
-                        archiveArtifacts artifacts: 'playwright-report/**, test-results/**, evidence/**', allowEmptyArchive: true
+                    archiveArtifacts artifacts: 'playwright-report/**, test-results/**, evidence/**', allowEmptyArchive: true
 
-                        echo '=================================================='
-                        echo '✅ SUCCESS: All build evidence has been safely stored!'
-                        echo '=================================================='
-                    }
+                    echo '=================================================='
+                    echo '✅ SUCCESS: All build evidence processing complete!'
+                    echo '=================================================='
                 }
             }
         }
