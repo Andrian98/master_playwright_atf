@@ -43,7 +43,7 @@ pipeline {
             when { expression { params.AGENT_TYPE == 'docker' } }
             agent { label 'built-in' }
 
-            stages {
+           stages {
                 stage('Install & Clean') {
                     steps {
                         echo '=================================================='
@@ -85,8 +85,9 @@ pipeline {
                                     echo '=================================================='
                                 }
                             }
-                         }
-                      }
+                    }
+                }
+           }
         }
     }
 }
