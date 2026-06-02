@@ -42,31 +42,36 @@ pipeline {
         stage('Docker Automation Pipeline') {
             when { expression { params.AGENT_TYPE == 'docker' } }
             agent { label 'built-in' }
-            steps {
-                echo "Initializing environment for AGENT_TYPE = ${params.AGENT_TYPE}"
 
-                withDockerContainer(image: 'mcr.microsoft.com/playwright:v1.60.0-noble') {
-
-                    stage('Install & Clean') {
+            stages {
+                stage('Install & Clean') {
+                    steps {
                         echo '=================================================='
                         echo '📦 STAGE: INSTALLING PROJECT DEPENDENCIES'
                         echo '=================================================='
-                        sh 'npm ci'
+                        withDockerContainer(image: 'mcr.microsoft.com/playwright:v1.60.0-noble') {
+                            sh 'npm ci'
 
-                        echo '=================================================='
-                        echo '🧹 STAGE: CLEARING OLD TEST ARTIFACTS & EVIDENCE'
-                        echo '=================================================='
-                        sh 'npm run clean'
+                            echo '=================================================='
+                            echo '🧹 STAGE: CLEARING OLD TEST ARTIFACTS & EVIDENCE'
+                            echo '=================================================='
+                            sh 'npm run clean'
+                        }
                     }
+                }
 
-                    stage('Execute Playwright Tests') {
+                stage('Execute Playwright Tests') {
+                    steps {
                         echo '=================================================='
                         echo '🎭 STAGE: EXECUTING PLAYWRIGHT ATF TEST SUITE'
                         echo '=================================================='
-                        sh 'npm run test:ci'
+                        withDockerContainer(image: 'mcr.microsoft.com/playwright:v1.60.0-noble') {
+                            sh 'npm run test:ci'
+                        }
                     }
                 }
             }
+
             post {
                 always {
                     echo '=================================================='
