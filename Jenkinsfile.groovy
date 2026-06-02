@@ -3,6 +3,7 @@ pipeline {
 
     options {
         timestamps()
+        buildDiscarder(logRotator(numToKeepStr: '10'))
     }
     parameters {
         choice(
@@ -39,43 +40,48 @@ pipeline {
                         '''
                     }
                 }
-
-        stage('Run in Docker') {
+        stage('Docker Automation Pipeline') {
             when { expression { params.AGENT_TYPE == 'docker' } }
             agent { label 'built-in' }
             steps {
-                echo "Selected AGENT_TYPE = ${params.AGENT_TYPE}"
+                echo "Initializing environment for AGENT_TYPE = ${params.AGENT_TYPE}"
 
+                // Keep the container open across all sub-stages nested inside it
                 withDockerContainer(image: 'mcr.microsoft.com/playwright:v1.60.0-noble') {
-                    echo '=================================================='
-                    echo '📦 STAGE: INSTALLING PROJECT DEPENDENCIES'
-                    echo '=================================================='
-                    sh 'npm ci'
 
-                    echo '=================================================='
-                    echo '🧹 STAGE: CLEARING OLD TEST ARTIFACTS & EVIDENCE'
-                    echo '=================================================='
-                    sh 'npm run clean'
+                    stage('Install & Clean') {
+                        echo '=================================================='
+                        echo '📦 STAGE: INSTALLING PROJECT DEPENDENCIES'
+                        echo '=================================================='
+                        sh 'npm ci'
 
-                    echo '=================================================='
-                    echo '🎭 STAGE: EXECUTING PLAYWRIGHT ATF TEST SUITE'
-                    echo '=================================================='
-                    sh 'npm run test:ci'
+                        echo '=================================================='
+                        echo '🧹 STAGE: CLEARING OLD TEST ARTIFACTS & EVIDENCE'
+                        echo '=================================================='
+                        sh 'npm run clean'
+                    }
+
+                    stage('Execute Playwright Tests') {
+                        echo '=================================================='
+                        echo '🎭 STAGE: EXECUTING PLAYWRIGHT ATF TEST SUITE'
+                        echo '=================================================='
+                        sh 'npm run test:ci'
+                    }
                 }
             }
             post {
                 always {
-                    echo '=================================================='
-                    echo '🗄️ STAGE: COLLECTING TEST BUILD EVIDENCE & REPORTS'
-                    echo '=================================================='
+                    stage('Archive Test Evidence') {
+                        echo '=================================================='
+                        echo '🗄️ STAGE: COLLECTING TEST BUILD EVIDENCE & REPORTS'
+                        echo '=================================================='
 
-                    archiveArtifacts artifacts: 'playwright-report/**, test-results/**, evidence/**', allowEmptyArchive: true
+                        archiveArtifacts artifacts: 'playwright-report/**, test-results/**, evidence/**', allowEmptyArchive: true
 
-                    echo '=================================================='
-                    echo '✅ SUCCESS: All build evidence has been safely stored!'
-                    echo 'You can access reports, screenshots, and evidence folders'
-                    echo 'directly from the "Artifacts" panel on this build page.'
-                    echo '=================================================='
+                        echo '=================================================='
+                        echo '✅ SUCCESS: All build evidence has been safely stored!'
+                        echo '=================================================='
+                    }
                 }
             }
         }
