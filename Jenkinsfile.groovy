@@ -66,8 +66,6 @@ pipeline {
                         echo '🎭 STAGE: EXECUTING PLAYWRIGHT ATF TEST SUITE'
                         echo '=================================================='
 
-                        // catchError ensures that test failures don't stop the pipeline execution,
-                        // allowing the next stage to collect and archive the test results.
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                             withDockerContainer(image: 'mcr.microsoft.com/playwright:v1.60.0-noble') {
                                 sh 'npm run test:ci'
@@ -82,7 +80,6 @@ pipeline {
                         echo '🗄️ STAGE: COLLECTING TEST BUILD EVIDENCE & REPORTS'
                         echo '=================================================='
 
-                        // The archiving steps live natively right inside the stage execution blocks
                         archiveArtifacts artifacts: 'playwright-report/**, test-results/**, evidence/**', allowEmptyArchive: true
 
                         echo '=================================================='
