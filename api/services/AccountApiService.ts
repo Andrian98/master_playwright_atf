@@ -43,6 +43,6 @@ export class AccountApiService {
         if (accounts.length === 0) {
             throw new Error('No accounts found for the customer. Please ensure the customer has at least one account before running this test.');
         }
-        return accounts[0].id;
+        return accounts[0]!.id;
     }
 }

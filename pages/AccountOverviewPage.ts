@@ -2,18 +2,14 @@ import {Page, Locator, expect} from "@playwright/test";
 
 export class AccountOverviewPage {
 
-    private readonly page: Page;
     private readonly accountsOverviewTitle: Locator;
     private readonly accountTable: Locator;
     private readonly accountLinks: Locator;
-    private readonly totalRow: Locator;
 
     constructor(page: Page) {
-        this.page = page;
         this.accountsOverviewTitle = page.getByRole('heading', {name: 'Accounts Overview'});
         this.accountTable = page.locator('#accountTable');
         this.accountLinks = page.locator('#accountTable tbody a');
-        this.totalRow = page.getByText("Total");
     }
 
     async isPageLoaded() {

@@ -65,6 +65,7 @@ request approvals) using highly parallelized, isolated, and resilient test block
 - Playwright Tests
 - Fixtures
 - Global Setup
+- ESLint Configuration
 
 **Observability Layer** (captures real-time execution telemetry, network transaction payloads, and visual media files during execution to ensure rapid debugging logs. It implements a structured logging format and an evidence retention policy to optimize storage while preserving critical failure artifacts for analysis.)
 - Logger
@@ -128,6 +129,10 @@ npx playwright install --with-deps
 ```Bash
 # Clean legacy trace files, screenshots, and report folders
 npm run clean
+# Scan the codebase for syntax errors and architectural style rule violations
+npm run lint
+# Automatically fix formatting errors and missing semicolons
+npm run lint:fix
 npm run test
 npm run test:ui
 npm run test:api
