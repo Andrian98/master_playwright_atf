@@ -1,14 +1,12 @@
 import {Page, Locator, expect} from "@playwright/test";
 
 export class LoginPage {
-    private readonly page: Page;
     private readonly usernameField: Locator;
     private readonly passwordField: Locator;
     private readonly loginButton: Locator;
     private readonly loginErrorMessage: Locator;
 
     constructor(page: Page) {
-        this.page = page;
         this.usernameField = page.locator('input[name="username"]');
         this.passwordField = page.locator('input[name="password"]');
         this.loginButton = page.getByRole('button', {name: 'Log In'});

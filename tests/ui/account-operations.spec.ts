@@ -31,8 +31,8 @@ test.describe('Account Operations', () => {
 
         await sideMenu.navigateToTransferFunds();
         await transferFundsPage.isPageLoaded();
-        await transferFundsPage.transferFunds(accountData.checking.initialDeposit, accountIds[0], accountIds[1]);
-        await transferFundsPage.validateTransferSuccess(accountData.checking.initialDeposit, accountIds[0], accountIds[1]);
+        await transferFundsPage.transferFunds(accountData.checking.initialDeposit, accountIds[0]!, accountIds[1]!);
+        await transferFundsPage.validateTransferSuccess(accountData.checking.initialDeposit, accountIds[0]!, accountIds[1]!);
         logger.info(`Transferred ${accountData.checking.initialDeposit} from account ${accountIds[0]} to account ${accountIds[1]}`);
         await captureCheckpoint(page, `Transferred ${accountData.checking.initialDeposit} from ${accountIds[0]} to ${accountIds[1]}`);
     });
@@ -47,7 +47,7 @@ test.describe('Account Operations', () => {
 
         await sideMenu.navigateToRequestLoan();
         await requestLoanPage.isPageLoaded();
-        await requestLoanPage.requestLoan(loanData.validLoanRequest.amount, loanData.validLoanRequest.downPayment, accountIds[0]);
+        await requestLoanPage.requestLoan(loanData.validLoanRequest.amount, loanData.validLoanRequest.downPayment, accountIds[0]!);
         const newLoanId = await requestLoanPage.validateLoanApproved();
         logger.info(`Loan approved with new account ID: ${newLoanId}`);
         await captureCheckpoint(page, `Loan Approved with Account ${newLoanId}`);

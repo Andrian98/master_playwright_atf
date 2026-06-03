@@ -22,4 +22,4 @@ export const users = {
         username: 'invalidUser',
         password: 'invalidUser123'
     }
-}
+};

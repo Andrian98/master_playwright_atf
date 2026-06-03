@@ -3,7 +3,6 @@ import {users} from '../test-data/users';
 
 
 export class RegisterPage {
-    private readonly page: Page;
     private readonly firstNameField: Locator;
     private readonly lastNameField: Locator;
     private readonly addressField: Locator;
@@ -20,7 +19,6 @@ export class RegisterPage {
     private readonly registrationSuccessMessage: Locator;
 
     constructor(page: Page) {
-        this.page = page;
         this.firstNameField = page.locator('#customer\\.firstName');
         this.lastNameField = page.locator('#customer\\.lastName');
         this.addressField = page.locator('#customer\\.address\\.street');
