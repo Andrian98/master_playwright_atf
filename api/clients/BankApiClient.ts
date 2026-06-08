@@ -1,5 +1,6 @@
 import {APIRequestContext, APIResponse} from "@playwright/test";
 import {environment} from "../../config/environment";
+import {logger} from "../../utils/logger";
 
 export interface LastRequestData {
     url: string;
@@ -17,6 +18,10 @@ export class BankApiClient {
         this.request = request;
     }
 
+    private sanitizeEndpoint(endpoint: string): string {
+        return endpoint.replace(/\/login\/([^/]+)\/[^/?#]+/, '/login/$1/[REDACTED]');
+    }
+
     async get(endpoint: string): Promise<APIResponse> {
         const url = `${environment.apiBaseUrl}${endpoint}`;
         const headers = {'accept': 'application/json'};
@@ -28,6 +33,7 @@ export class BankApiClient {
         };
         const response = await this.request.get(url, {headers});
         this.lastResponse = response;
+        logger.info(`API GET ${this.sanitizeEndpoint(endpoint)} completed with status ${response.status()}`);
         return response;
     }
 
@@ -46,6 +52,7 @@ export class BankApiClient {
 
         const response = await this.request.post(url, {data: body, headers});
         this.lastResponse = response;
+        logger.info(`API POST ${this.sanitizeEndpoint(endpoint)} completed with status ${response.status()}`);
         return response;
     }
 
