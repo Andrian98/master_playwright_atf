@@ -10,6 +10,7 @@
     "test:ui": "cross-env NODE_OPTIONS='--no-deprecation' playwright test tests/ui",
     "test:ui:headless": "cross-env HEADLESS=true NODE_OPTIONS='--no-deprecation' playwright test tests/ui",
     "test:ui:headed": "cross-env HEADLESS=false NODE_OPTIONS='--no-deprecation' playwright test tests/ui",
+    "test:ui:evidence": "cross-env CAPTURE_CHECKPOINT_SCREENSHOTS=true NODE_OPTIONS='--no-deprecation' playwright test tests/ui",
     "test:api": "cross-env NODE_OPTIONS='--no-deprecation' playwright test tests/api",
     "test:ci": "cross-env CI=true NODE_OPTIONS='--no-deprecation' playwright test tests --workers=2 --retries=1",
     "clean": "node -e \"const fs=require('fs'); ['evidence','playwright-report','test-results','snapshots'].forEach(d => fs.rmSync(d,{recursive:true,force:true}))\"",

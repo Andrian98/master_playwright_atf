@@ -151,8 +151,10 @@ npx playwright install --with-deps
  npm run test:ui
   # Run UI tests in headless mode
  npm run test:ui:headless
-  # Run UI tests with a visible browser window
+ # Run UI tests with a visible browser window
  npm run test:ui:headed
+  # Run UI tests with manual checkpoint screenshots enabled
+ npm run test:ui:evidence
  npm run test:api
   # Run all tests headlessly across configured targets
  npm run test:ci
@@ -168,6 +170,14 @@ The UI test browser mode is controlled by the `HEADLESS` environment variable in
 - Use `HEADLESS=false` to open the browser window during UI execution.
 - Use `npm run test:ui:headed` for local debugging.
 - Use `npm run test:ui:headless` for standard local or CI-style UI execution.
+
+* UI Checkpoint Screenshots:
+
+Manual checkpoint screenshots are controlled by the `CAPTURE_CHECKPOINT_SCREENSHOTS` environment variable.
+
+- Default execution does not create manual checkpoint screenshots.
+- Use `CAPTURE_CHECKPOINT_SCREENSHOTS=true` to save and attach checkpoint screenshots.
+- Use `npm run test:ui:evidence` when screenshot evidence is needed for a UI run.
 
 ## 6. Evidence and Reports
 

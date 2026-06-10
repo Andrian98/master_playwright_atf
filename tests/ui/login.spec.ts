@@ -4,6 +4,7 @@ import {users} from '../../test-data/users';
 import {environment} from '../../config/environment';
 import {SideMenu} from "../../pages/components/SideMenu";
 import {logger} from "../../utils/logger";
+import {captureCheckpoint} from "../../utils/evidenceHelper";
 
 test.describe('Login Functionality', () => {
     test.use({ storageState: { cookies: [], origins: [] } });
@@ -28,7 +29,7 @@ test.describe('Login Functionality', () => {
         }
     });
 
-    test('validate successful login', async ({page}) => {
+    test('validate successful login', async ({page}, testInfo) => {
         const sideMenu = new SideMenu(page);
 
         await test.step('Submit valid login credentials', async () => {
@@ -38,10 +39,11 @@ test.describe('Login Functionality', () => {
         await test.step('Validate successful login state', async () => {
             await sideMenu.isLoaded();
             logger.info(`Successful login validation passed for user: ${users.validUser.username}`);
+            await captureCheckpoint(page, 'Successful Login State', 'ui', testInfo);
         });
     });
 
-    test('validate failed login', async () => {
+    test('validate failed login', async ({page}, testInfo) => {
         await test.step('Submit invalid login credentials', async () => {
             await loginPage.login(users.invalidUser.username, users.invalidUser.password);
         });
@@ -49,6 +51,7 @@ test.describe('Login Functionality', () => {
         await test.step('Validate failed login message', async () => {
             await loginPage.validateFailedLogin();
             logger.info(`Failed login validation passed for user: ${users.invalidUser.username}`);
+            await captureCheckpoint(page, 'Failed Login Message', 'ui', testInfo);
         });
     });
 });
