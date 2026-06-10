@@ -50,30 +50,44 @@ request approvals) using highly parallelized, isolated, and resilient test block
 ├── playwright.config.ts           # Playwright execution configuration
 └── README.md                      # Framework documentation
 ```
+
 ### 3.1 Architecture Layers
-**UI Layer** (manages user interface interactions and page structure using the Page Object Model (POM) to isolate the test logic from the underlying UI structure, ensuring maintainability and scalability.)
+
+**UI Layer** (manages user interface interactions and page structure using the Page Object Model (POM) to isolate the
+test logic from the underlying UI structure, ensuring maintainability and scalability.)
+
 - Page Objects
 - Components
 - UI Fixtures
 
-**API Layer** (handles programmatic HTTP communication with the target system endpoints, abstracting away low-level request details and providing a clean interface for test cases to interact with the backend services.)
+**API Layer** (handles programmatic HTTP communication with the target system endpoints, abstracting away low-level
+request details and providing a clean interface for test cases to interact with the backend services.)
+
 - Clients
 - Services
 - Models
 
-**Execution Layer** (orchestrates the framework configuration, global preconditions, and dependency injection context needed to run the test validation suites. It also manages the test execution flow, including parallelization, retries, and evidence capture strategies.)
+**Execution Layer** (orchestrates the framework configuration, global preconditions, and dependency injection context
+needed to run the test validation suites. It also manages the test execution flow, including parallelization, retries,
+and evidence capture strategies.)
+
 - Playwright Tests
 - Fixtures
 - Global Setup
 - ESLint Configuration
 
-**Observability Layer** (captures real-time execution telemetry, network transaction payloads, and visual media files during execution to ensure rapid debugging logs. It implements a structured logging format and an evidence retention policy to optimize storage while preserving critical failure artifacts for analysis.)
+**Observability Layer** (captures real-time execution telemetry, network transaction payloads, and visual media files
+during execution to ensure rapid debugging logs. It implements a structured logging format and an evidence retention
+policy to optimize storage while preserving critical failure artifacts for analysis.)
+
 - Logger
 - Evidence Manager
 - API Evidence
 - Screenshots
 
-**CI/CD Layer** (Controls automated pipeline trigger hooks, software dependency provisioning, and artifact archiving across local and cloud environments.)
+**CI/CD Layer** (Controls automated pipeline trigger hooks, software dependency provisioning, and artifact archiving
+across local and cloud environments.)
+
 - GitHub Actions
 - Jenkins
 
@@ -127,42 +141,59 @@ npx playwright install --with-deps
 * Available Run Scripts:
 
 ```Bash
-# Clean legacy trace files, screenshots, and report folders
-npm run clean
-# Scan the codebase for syntax errors and architectural style rule violations
-npm run lint
-# Automatically fix formatting errors and missing semicolons
-npm run lint:fix
-npm run test
-npm run test:ui
-npm run test:api
-# Run all tests headlessly across configured targets
-npm run test:ci
-npm run report
+  # Clean legacy trace files, screenshots, and report folders
+ npm run clean
+  # Scan the codebase for syntax errors and architectural style rule violations
+ npm run lint
+  # Automatically fix formatting errors and missing semicolons
+ npm run lint:fix
+ npm run test
+ npm run test:ui
+  # Run UI tests in headless mode
+ npm run test:ui:headless
+  # Run UI tests with a visible browser window
+ npm run test:ui:headed
+ npm run test:api
+  # Run all tests headlessly across configured targets
+ npm run test:ci
+ npm run report
 ````
+
+* UI Browser Mode:
+
+The UI test browser mode is controlled by the `HEADLESS` environment variable in `playwright.config.ts`.
+
+- Default execution is headless.
+- Use `HEADLESS=true` to keep the browser hidden.
+- Use `HEADLESS=false` to open the browser window during UI execution.
+- Use `npm run test:ui:headed` for local debugging.
+- Use `npm run test:ui:headless` for standard local or CI-style UI execution.
 
 ## 6. Evidence and Reports
 
-The framework automatically logs rich debugging artifacts dynamically based on run context to minimize clutter while guaranteeing traceability:
+The framework automatically logs rich debugging artifacts dynamically based on run context to minimize clutter while
+guaranteeing traceability:
 
 * Trace Files: Generated via retain-on-failure options for deep DOM timeline inspection.
-* Screenshots: 
-  * Manual business checkpoint screenshots
-  * Automatic failure screenshots
+* Screenshots:
+    * Manual business checkpoint screenshots
+    * Automatic failure screenshots
 * API failure evidence:
-  - Request payload
-  - Response payload
-  - Headers
-  - Status codes
+    - Request payload
+    - Response payload
+    - Headers
+    - Status codes
 * Videos: Recorded via retain-on-failure configurations.
 
 Evidence Retention Policy
+
 - Maximum 2 date folders retained
 - Maximum 5 execution runs retained per day
 - Oldest executions are removed automatically
 - Screenshots, logs and API evidence are grouped per execution
 
-All execution artifacts are cataloged inside the ./evidence and ./playwright-report directories under structured timestamps corresponding to the execution thread:
+All execution artifacts are cataloged inside the ./evidence and ./playwright-report directories under structured
+timestamps corresponding to the execution thread:
 
 ```Plaintext
 evidence/YYYY-MM-DD/run-YYYY-MM-DD_HH-MM-SS/ui/screenshots/
@@ -180,10 +211,14 @@ The project contains an advanced declarative multi-stage Jenkinsfile.groovy opti
 
 Pipeline Stage Architecture
 
-1. Pre-Flight Health Check: Safely pings https://parabank.parasoft.com/parabank via a POSIX-compliant shell shell script to verify environment accessibility before allocating computational resources.
-2. Install & Clean: Provisions a production-ready mcr.microsoft.com/playwright:v1.60.0-noble container layer over your Unix socket, triggers a lightning-fast npm ci, and wipes out old logs.
-3. Execute Playwright Tests: Orchestrates test processing. Leverages catchError boundaries to ensure that even if a test assertion crashes, the pipeline continues processing gracefully to preserve logs.
-4. Process Test Results & Generate Reports: Collects execution data and calls archiveArtifacts to make test results readily available in the Jenkins UI dashboard.
+1. Pre-Flight Health Check: Safely pings https://parabank.parasoft.com/parabank via a POSIX-compliant shell shell script
+   to verify environment accessibility before allocating computational resources.
+2. Install & Clean: Provisions a production-ready mcr.microsoft.com/playwright:v1.60.0-noble container layer over your
+   Unix socket, triggers a lightning-fast npm ci, and wipes out old logs.
+3. Execute Playwright Tests: Orchestrates test processing. Leverages catchError boundaries to ensure that even if a test
+   assertion crashes, the pipeline continues processing gracefully to preserve logs.
+4. Process Test Results & Generate Reports: Collects execution data and calls archiveArtifacts to make test results
+   readily available in the Jenkins UI dashboard.
 
 Local Permission Prerequisites (Rancher Desktop Only)
 If you reboot your system or restart the Jenkins controller container, open Windows PowerShell with administrative
@@ -200,7 +235,7 @@ docker exec -u 0 -it jenkins-local chmod 666 /var/run/docker.sock
 * Structure your execution using the framework's native page objects and step loggers:
 
 ```typescript
-import { test, expect } from '../../fixtures/appFixtures';
+import {test, expect} from '../../fixtures/appFixtures';
 
 test.describe('Feature Group Name', () => {
     test('should execute targeted interaction flow', async ({page}) => {
@@ -217,7 +252,7 @@ test.describe('Feature Group Name', () => {
 * Use Playwright's native request context utility to manage endpoint calls efficiently:
 
 ```typescript
-import { test, expect } from '../../fixtures/appFixtures';
+import {test, expect} from '../../fixtures/appFixtures';
 
 test('should validate secure REST response', async ({request}) => {
     const response = await request.post('/parabank/services/store', {

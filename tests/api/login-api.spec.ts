@@ -7,6 +7,18 @@ import {executeApiValidationWithEvidence} from "../../utils/apiAssertionHelper";
 
 test.describe('Login API functionality', () => {
 
+    test.beforeEach(async ({}, testInfo) => {
+        logger.info(`API test started: ${testInfo.title}`);
+    });
+
+    test.afterEach(async ({}, testInfo) => {
+        if (testInfo.status === testInfo.expectedStatus) {
+            logger.info(`API test finished successfully: ${testInfo.title}`);
+        } else {
+            logger.error(`API test finished with status ${testInfo.status}: ${testInfo.title}`);
+        }
+    });
+
     test('login with valid credentials', async ({accountApiService}, testInfo) => {
         const response = await accountApiService.login(users.validUser.username, users.validUser.password);
         await executeApiValidationWithEvidence(testInfo, accountApiService, async () => {
@@ -15,7 +27,7 @@ test.describe('Login API functionality', () => {
             expect(responseJson.firstName).toBe(users.registerUser.firstName);
             expect(responseJson.lastName).toBe(users.registerUser.lastName);
             expect(responseJson.ssn).toBe(users.registerUser.ssn);
-            logger.info(`API login successful for user: ${users.validUser.username}`);
+            logger.info(`API login response validation passed for user: ${users.validUser.username}`);
         });
     });
 
@@ -25,7 +37,7 @@ test.describe('Login API functionality', () => {
         await executeApiValidationWithEvidence(testInfo, accountApiService, () => {
             expect(response.status()).toBe(400);
             expect(responseText).toContain('Invalid username and/or password');
-            logger.info(`API login failed as expected for user: ${users.invalidUser.username}`);
+            logger.info(`Invalid API login response validation passed for user: ${users.invalidUser.username}`);
         });
     });
 });
