@@ -1,6 +1,8 @@
 import {defineConfig, devices} from '@playwright/test';
 import {environment} from "./config/environment";
 
+const isHeadless = process.env.HEADLESS !== 'false';
+
 export default defineConfig({
     globalSetup: require.resolve('./global-setup'),
     testDir: './tests',
@@ -17,6 +19,7 @@ export default defineConfig({
     use: {
         baseURL: environment.baseUrl,
         storageState: environment.authStatePath,
+        headless: isHeadless,
         trace: 'retain-on-failure',
         screenshot: 'only-on-failure',
         video: 'retain-on-failure',
