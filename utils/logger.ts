@@ -9,6 +9,13 @@ const customFormat = format.combine(
     })
 );
 
+const getLogFilePath = (): string => path.join(getLogsDir(), 'test-run.log');
+
+const createFileTransport = (filePath: string) => new transports.File({filename: filePath});
+
+let activeLogFilePath: string | null = null;
+let fileTransport: ReturnType<typeof createFileTransport> | null = null;
+
 export const logger = createLogger({
     level: 'info',
     format: customFormat,
@@ -16,6 +23,27 @@ export const logger = createLogger({
         new transports.Console({
             format: customFormat
         }),
-        new transports.File({filename: path.join(getLogsDir(), 'test-run.log')}),
     ]
 });
+
+export const initializeLogger = (): string => {
+    const logFilePath = getLogFilePath();
+
+    if (activeLogFilePath === logFilePath) {
+        return logFilePath;
+    }
+
+    if (fileTransport) {
+        logger.remove(fileTransport);
+    }
+
+    fileTransport = createFileTransport(logFilePath);
+    logger.add(fileTransport);
+    activeLogFilePath = logFilePath;
+
+    return logFilePath;
+};
+
+if (process.env.ACTIVE_RUN_DIR) {
+    initializeLogger();
+}
