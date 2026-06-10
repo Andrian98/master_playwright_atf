@@ -151,15 +151,17 @@ npx playwright install --with-deps
  npm run test:ui
   # Run UI tests in headless mode
  npm run test:ui:headless
-  # Run UI tests with a visible browser window
+ # Run UI tests with a visible browser window
  npm run test:ui:headed
+  # Run UI tests with manual checkpoint screenshots enabled
+ npm run test:ui:evidence
  npm run test:api
   # Run all tests headlessly across configured targets
  npm run test:ci
  npm run report
 ````
 
-* UI Browser Mode:
+### UI Browser Mode:
 
 The UI test browser mode is controlled by the `HEADLESS` environment variable in `playwright.config.ts`.
 
@@ -169,21 +171,94 @@ The UI test browser mode is controlled by the `HEADLESS` environment variable in
 - Use `npm run test:ui:headed` for local debugging.
 - Use `npm run test:ui:headless` for standard local or CI-style UI execution.
 
+### UI Checkpoint Screenshots:
+
+Manual checkpoint screenshots are controlled by the `CAPTURE_CHECKPOINT_SCREENSHOTS` environment variable.
+
+- Default execution does not create manual checkpoint screenshots.
+- Use `CAPTURE_CHECKPOINT_SCREENSHOTS=true` to save and attach checkpoint screenshots.
+- Use `npm run test:ui:evidence` when screenshot evidence is needed for a UI run.
+
+### Execution Configuration:
+
+Parallel execution and browser selection can be controlled from `playwright.config.ts` or overridden from the command line.
+
+- Use `npm run test` to run both UI and API tests from the configured `tests` directory.
+- Use `npm run test:ui` to run only UI tests.
+- Use `npm run test:api` to run only API tests.
+- Use `workers` in `playwright.config.ts` to control default parallel execution.
+- Use `--workers=<number>` in the command line to override parallel execution for one run.
+- Use `projects` in `playwright.config.ts` to configure one or multiple browsers.
+- Use `--project=<browser-name>` in the command line to run a specific configured browser.
+
+Examples:
+
+```Bash
+npx playwright test tests/ui --workers=2
+npx playwright test tests/api --workers=4
+npx playwright test --project=chromium
+```
+
+### Environment Configuration:
+
+Environment and application route values are stored in `config/environment.ts`.
+
+- `baseUrl` is used for UI navigation.
+- `apiBaseUrl` is used by the API client layer.
+- Page paths such as `loginPath`, `registerPath`, `openNewAccountPath`, and `accountOverviewPath` are stored separately from tests.
+- `authStatePath` defines where the authenticated browser state is saved.
+- `captureCheckpointScreenshots` is controlled by `CAPTURE_CHECKPOINT_SCREENSHOTS`.
+
+### Global Setup:
+
+The framework uses `global-setup.ts` through the `globalSetup` option in `playwright.config.ts`.
+
+- It initializes the evidence run directory.
+- It prepares the Parabank admin setup.
+- It registers the test user.
+- It validates that the registered user is logged in.
+- It saves authenticated browser state to `playwright/.auth/user.json`.
+
+### CI Execution Behavior:
+
+CI behavior is controlled by `CI=true` and the `test:ci` script.
+
+- `forbidOnly` is enabled in CI to prevent committed `test.only` usage.
+- The Playwright config defines CI retry and worker defaults.
+- The current `npm run test:ci` command runs tests with `--workers=2 --retries=1`.
+- Jenkins runs the suite inside `mcr.microsoft.com/playwright:v1.60.0-noble`.
+
+### Browser Projects:
+
+Browser targets are configured in the `projects` section of `playwright.config.ts`.
+
+- `chromium` is currently enabled.
+- Firefox and WebKit are prepared in the config but commented out.
+- Enable additional projects when cross-browser execution is required.
+- Use `--project=<browser-name>` to run one configured browser.
+
 ## 6. Evidence and Reports
 
 The framework automatically logs rich debugging artifacts dynamically based on run context to minimize clutter while
 guaranteeing traceability:
 
-* Trace Files: Generated via retain-on-failure options for deep DOM timeline inspection.
+The configured reporters are:
+
+- HTML reporter with `open: 'on-failure'`.
+- List reporter for terminal output.
+
+Failure artifact behavior is configured in `playwright.config.ts`:
+
+* Trace Files: `retain-on-failure` for deep DOM timeline inspection.
 * Screenshots:
     * Manual business checkpoint screenshots
-    * Automatic failure screenshots
+    * Automatic failure screenshots through `screenshot: 'only-on-failure'`
 * API failure evidence:
     - Request payload
     - Response payload
     - Headers
     - Status codes
-* Videos: Recorded via retain-on-failure configurations.
+* Videos: Recorded through `video: 'retain-on-failure'`.
 
 Evidence Retention Policy
 
@@ -211,7 +286,7 @@ The project contains an advanced declarative multi-stage Jenkinsfile.groovy opti
 
 Pipeline Stage Architecture
 
-1. Pre-Flight Health Check: Safely pings https://parabank.parasoft.com/parabank via a POSIX-compliant shell shell script
+1. Pre-Flight Health Check: Safely pings https://parabank.parasoft.com/parabank via a POSIX-compliant shell script
    to verify environment accessibility before allocating computational resources.
 2. Install & Clean: Provisions a production-ready mcr.microsoft.com/playwright:v1.60.0-noble container layer over your
    Unix socket, triggers a lightning-fast npm ci, and wipes out old logs.
