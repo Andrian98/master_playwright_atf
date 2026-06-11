@@ -11,6 +11,11 @@ pipeline {
             choices: ['docker'],
             description: 'Select Jenkins execution environment'
         )
+        string(
+            name: 'PLAYWRIGHT_DOCKER_IMAGE',
+            defaultValue: 'mcr.microsoft.com/playwright:v1.60.0-noble',
+            description: 'Playwright Docker image used by Jenkins'
+        )
     }
 
     stages {
@@ -49,7 +54,7 @@ pipeline {
                         echo '=================================================='
                         echo '📦 STAGE: INSTALLING PROJECT DEPENDENCIES'
                         echo '=================================================='
-                        withDockerContainer(image: 'mcr.microsoft.com/playwright:v1.60.0-noble') {
+                        withDockerContainer(image: params.PLAYWRIGHT_DOCKER_IMAGE) {
                             sh 'npm ci'
 
                             echo '=================================================='
@@ -67,7 +72,7 @@ pipeline {
                         echo '=================================================='
 
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                            withDockerContainer(image: 'mcr.microsoft.com/playwright:v1.60.0-noble') {
+                            withDockerContainer(image: params.PLAYWRIGHT_DOCKER_IMAGE) {
                                 sh 'npm run test:ci'
                             }
                         }

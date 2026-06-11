@@ -122,7 +122,7 @@ Follow these steps to initialize the environment and run tests from your local m
 
 ```Bash
 git
-clone [https://github.com/Andrian98/master_playwright_atf.git](https://github.com/Andrian98/master_playwright_atf.git)
+clone https://github.com/Andrian98/master_playwright_atf.git
 cd master_playwright_atf
 ````
 
@@ -140,25 +140,25 @@ npx playwright install --with-deps
 
 * Available Run Scripts:
 
-```Bash
-  # Clean legacy trace files, screenshots, and report folders
- npm run clean
-  # Scan the codebase for syntax errors and architectural style rule violations
- npm run lint
-  # Automatically fix formatting errors and missing semicolons
- npm run lint:fix
- npm run test
- npm run test:ui
-  # Run UI tests in headless mode
- npm run test:ui:headless
- # Run UI tests with a visible browser window
- npm run test:ui:headed
-  # Run UI tests with manual checkpoint screenshots enabled
- npm run test:ui:evidence
- npm run test:api
-  # Run all tests headlessly across configured targets
- npm run test:ci
- npm run report
+```text
+# Clean legacy trace files, screenshots, and report folders
+npm run clean
+# Scan the codebase for syntax errors and architectural style rule violations
+npm run lint
+# Automatically fix formatting errors and missing semicolons
+npm run lint:fix
+npm run test
+npm run test:ui
+# Run UI tests in headless mode
+npm run test:ui:headless
+# Run UI tests with a visible browser window
+npm run test:ui:headed
+# Run UI tests with manual checkpoint screenshots enabled
+npm run test:ui:evidence
+npm run test:api
+# Run all tests headlessly across configured targets
+npm run test:ci
+npm run report
 ````
 
 ### UI Browser Mode:
