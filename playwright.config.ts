@@ -5,6 +5,7 @@ const isHeadless = process.env.HEADLESS !== 'false';
 
 export default defineConfig({
     globalSetup: require.resolve('./global-setup'),
+    globalTeardown: require.resolve('./global-teardown'),
     testDir: './tests',
     fullyParallel: true,
     forbidOnly: !!process.env.CI,

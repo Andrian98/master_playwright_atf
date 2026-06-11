@@ -87,3 +87,12 @@ export const getApiEvidenceDir = (): string => {
     }
     return apiFailuresPath;
 };
+
+export const getMetricsDir = (): string => {
+    const masterRunDir = process.env.ACTIVE_RUN_DIR || BASE_EVIDENCE_DIR;
+    const metricsPath = path.join(masterRunDir, 'metrics');
+    if (!fs.existsSync(metricsPath)) {
+        fs.mkdirSync(metricsPath, {recursive: true});
+    }
+    return metricsPath;
+};

@@ -42,7 +42,7 @@ request approvals) using highly parallelized, isolated, and resilient test block
 ├── tests/
 │   ├── api/                       # API regression suites
 │   └── ui/                        # UI/E2E regression suites
-├── utils/                         # Logging, evidence, assertion, and helper utilities
+├── utils/                         # Logging, evidence, metrics, assertion, and helper utilities
 ├── global-setup.ts                # Admin setup, user registration, auth state, evidence run initialization
 ├── Jenkinsfile.groovy             # Jenkins declarative pipeline
 ├── package.json                   # NPM scripts and dependencies
@@ -105,6 +105,7 @@ across local and cloud environments.)
 ✔ Jenkins Docker Pipeline
 ✔ Evidence Retention
 ✔ Structured Logging
+✔ Resource Monitoring
 
 ## 4. Prerequisites
 
@@ -122,7 +123,7 @@ Follow these steps to initialize the environment and run tests from your local m
 
 ```Bash
 git
-clone [https://github.com/Andrian98/master_playwright_atf.git](https://github.com/Andrian98/master_playwright_atf.git)
+clone https://github.com/Andrian98/master_playwright_atf.git
 cd master_playwright_atf
 ````
 
@@ -140,25 +141,25 @@ npx playwright install --with-deps
 
 * Available Run Scripts:
 
-```Bash
-  # Clean legacy trace files, screenshots, and report folders
- npm run clean
-  # Scan the codebase for syntax errors and architectural style rule violations
- npm run lint
-  # Automatically fix formatting errors and missing semicolons
- npm run lint:fix
- npm run test
- npm run test:ui
-  # Run UI tests in headless mode
- npm run test:ui:headless
- # Run UI tests with a visible browser window
- npm run test:ui:headed
-  # Run UI tests with manual checkpoint screenshots enabled
- npm run test:ui:evidence
- npm run test:api
-  # Run all tests headlessly across configured targets
- npm run test:ci
- npm run report
+```text
+# Clean legacy trace files, screenshots, and report folders
+npm run clean
+# Scan the codebase for syntax errors and architectural style rule violations
+npm run lint
+# Automatically fix formatting errors and missing semicolons
+npm run lint:fix
+npm run test
+npm run test:ui
+# Run UI tests in headless mode
+npm run test:ui:headless
+# Run UI tests with a visible browser window
+npm run test:ui:headed
+# Run UI tests with manual checkpoint screenshots enabled
+npm run test:ui:evidence
+npm run test:api
+# Run all tests headlessly across configured targets
+npm run test:ci
+npm run report
 ````
 
 ### UI Browser Mode:
@@ -259,20 +260,26 @@ Failure artifact behavior is configured in `playwright.config.ts`:
     - Headers
     - Status codes
 * Videos: Recorded through `video: 'retain-on-failure'`.
+* Resource Metrics: CPU and RAM snapshots captured during execution.
 
 Evidence Retention Policy
 
 - Maximum 2 date folders retained
 - Maximum 5 execution runs retained per day
-- Oldest executions are removed automatically
-- Screenshots, logs and API evidence are grouped per execution
+- Oldest executions are removed automatically.
+- Screenshots, logs, metrics and API evidence are grouped per execution.
 
 All execution artifacts are cataloged inside the ./evidence and ./playwright-report directories under structured
 timestamps corresponding to the execution thread:
 
 ```Plaintext
 evidence/YYYY-MM-DD/run-YYYY-MM-DD_HH-MM-SS/ui/screenshots/
+evidence/YYYY-MM-DD/run-YYYY-MM-DD_HH-MM-SS/metrics/system-metrics.csv
+evidence/YYYY-MM-DD/run-YYYY-MM-DD_HH-MM-SS/metrics/system-metrics.json
+evidence/YYYY-MM-DD/run-YYYY-MM-DD_HH-MM-SS/metrics/system-metrics-summary.json
 ```
+
+Resource monitoring starts after the evidence run directory is initialized and stops in `global-teardown.ts`.
 
 ## 7. GitHub Actions
 
