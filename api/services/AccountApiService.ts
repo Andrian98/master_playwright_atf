@@ -2,6 +2,7 @@ import {BankApiClient} from "../clients/BankApiClient";
 import {APIResponse} from "@playwright/test";
 import {Customer} from "../models/Customer";
 import {Account} from "../models/Account";
+import {bankEndpoints} from "../endpoints/bankEndpoints";
 
 export class AccountApiService {
     public readonly apiClient: BankApiClient;
@@ -11,18 +12,15 @@ export class AccountApiService {
     }
 
     async login(username: string, password: string): Promise<APIResponse> {
-        const loginUrl = `/login/${username}/${password}`;
-        return await this.apiClient.get(loginUrl);
+        return await this.apiClient.get(bankEndpoints.login(username, password));
     }
 
     async createAccount(customerId: number, newAccountType: number, fromAccountId: number): Promise<APIResponse> {
-        const createAccountUrl = `/createAccount?customerId=${customerId}&newAccountType=${newAccountType}&fromAccountId=${fromAccountId}`;
-        return await this.apiClient.post(createAccountUrl);
+        return await this.apiClient.post(bankEndpoints.createAccount(customerId, newAccountType, fromAccountId));
     }
 
     async getAccounts(customerId: number): Promise<APIResponse> {
-        const accountsUrl = `/customers/${customerId}/accounts`;
-        return await this.apiClient.get(accountsUrl);
+        return await this.apiClient.get(bankEndpoints.getAccounts(customerId));
     }
 
     async getCustomerId(username: string, password: string): Promise<number> {

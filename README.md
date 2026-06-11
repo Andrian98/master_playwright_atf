@@ -32,6 +32,7 @@ request approvals) using highly parallelized, isolated, and resilient test block
 │   └── workflows/                 # GitHub Actions workflow definitions
 ├── api/
 │   ├── clients/                   # Low-level API HTTP clients
+│   ├── endpoints/                 # Centralized API endpoint path builders
 │   ├── models/                    # Typed API response/request models
 │   └── services/                  # Business-level API service methods
 ├── config/                        # Environment and framework configuration
