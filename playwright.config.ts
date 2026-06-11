@@ -2,6 +2,29 @@ import {defineConfig, devices} from '@playwright/test';
 import {environment} from "./config/environment";
 
 const isHeadless = process.env.HEADLESS !== 'false';
+const browserProject = process.env.BROWSER_PROJECT || 'chromium';
+const browserProjects = [
+    {
+        name: 'chromium',
+        use: {...devices['Desktop Chrome']},
+    },
+    {
+        name: 'firefox',
+        use: {...devices['Desktop Firefox']},
+    },
+    {
+        name: 'webkit',
+        use: {...devices['Desktop Safari']},
+    },
+];
+
+const selectedProjects = browserProject === 'all'
+    ? browserProjects
+    : browserProjects.filter(project => project.name === browserProject);
+
+if (selectedProjects.length === 0) {
+    throw new Error(`Unsupported BROWSER_PROJECT value: ${browserProject}. Supported values: chromium, firefox, webkit, all.`);
+}
 
 export default defineConfig({
     globalSetup: require.resolve('./global-setup'),
@@ -25,19 +48,5 @@ export default defineConfig({
         screenshot: 'only-on-failure',
         video: 'retain-on-failure',
     },
-    /* Configure projects for major browsers */
-    projects: [
-        {
-            name: 'chromium',
-            use: {...devices['Desktop Chrome']},
-        },
-        // {
-        //   name: 'firefox',
-        //   use: { ...devices['Desktop Firefox'] },
-        // },
-        // {
-        //   name: 'webkit',
-        //   use: { ...devices['Desktop Safari'] },
-        // },
-    ],
+    projects: selectedProjects,
 });

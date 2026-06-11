@@ -16,6 +16,11 @@ pipeline {
             defaultValue: 'mcr.microsoft.com/playwright:v1.60.0-noble',
             description: 'Playwright Docker image used by Jenkins'
         )
+        choice(
+            name: 'BROWSER_PROJECT',
+            choices: ['chromium', 'firefox', 'webkit', 'all'],
+            description: 'Select browser project for Playwright execution'
+        )
     }
 
     stages {
@@ -71,9 +76,13 @@ pipeline {
                         echo '🎭 STAGE: EXECUTING PLAYWRIGHT ATF TEST SUITE'
                         echo '=================================================='
 
+                        echo "Selected browser project: ${params.BROWSER_PROJECT}"
+
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                             withDockerContainer(image: params.PLAYWRIGHT_DOCKER_IMAGE) {
-                                sh 'npm run test:ci'
+                                withEnv(["BROWSER_PROJECT=${params.BROWSER_PROJECT}"]) {
+                                    sh 'npm run test:ci'
+                                }
                             }
                         }
                     }
