@@ -32,6 +32,7 @@ request approvals) using highly parallelized, isolated, and resilient test block
 │   └── workflows/                 # GitHub Actions workflow definitions
 ├── api/
 │   ├── clients/                   # Low-level API HTTP clients
+│   ├── endpoints/                 # Centralized API endpoint path builders
 │   ├── models/                    # Typed API response/request models
 │   └── services/                  # Business-level API service methods
 ├── config/                        # Environment and framework configuration
@@ -148,7 +149,14 @@ npm run clean
 npm run lint
 # Automatically fix formatting errors and missing semicolons
 npm run lint:fix
+# Run all tests with the default browser project: chromium
 npm run test
+# Run all tests with a specific browser project
+npm run test:chromium
+npm run test:firefox
+npm run test:webkit
+# Run all tests across all configured browser projects
+npm run test:browsers
 npm run test:ui
 # Run UI tests in headless mode
 npm run test:ui:headless
@@ -189,15 +197,17 @@ Parallel execution and browser selection can be controlled from `playwright.conf
 - Use `npm run test:api` to run only API tests.
 - Use `workers` in `playwright.config.ts` to control default parallel execution.
 - Use `--workers=<number>` in the command line to override parallel execution for one run.
-- Use `projects` in `playwright.config.ts` to configure one or multiple browsers.
-- Use `--project=<browser-name>` in the command line to run a specific configured browser.
+- Use `BROWSER_PROJECT` to choose `chromium`, `firefox`, `webkit`, or `all`.
+- Default local execution uses `chromium` when `BROWSER_PROJECT` is not set.
+- Use `projects` in `playwright.config.ts` to configure available browser projects.
 
 Examples:
 
 ```Bash
 npx playwright test tests/ui --workers=2
 npx playwright test tests/api --workers=4
-npx playwright test --project=chromium
+npm run test:firefox
+npm run test:browsers
 ```
 
 ### Environment Configuration:
@@ -228,15 +238,18 @@ CI behavior is controlled by `CI=true` and the `test:ci` script.
 - The Playwright config defines CI retry and worker defaults.
 - The current `npm run test:ci` command runs tests with `--workers=2 --retries=1`.
 - Jenkins runs the suite inside `mcr.microsoft.com/playwright:v1.60.0-noble`.
+- Jenkins exposes `BROWSER_PROJECT` as a build parameter with `chromium`, `firefox`, `webkit`, and `all` options.
 
 ### Browser Projects:
 
 Browser targets are configured in the `projects` section of `playwright.config.ts`.
 
-- `chromium` is currently enabled.
-- Firefox and WebKit are prepared in the config but commented out.
-- Enable additional projects when cross-browser execution is required.
-- Use `--project=<browser-name>` to run one configured browser.
+- Chromium, Firefox and WebKit are available in the config.
+- `BROWSER_PROJECT=chromium` runs only Chromium.
+- `BROWSER_PROJECT=firefox` runs only Firefox.
+- `BROWSER_PROJECT=webkit` runs only WebKit.
+- `BROWSER_PROJECT=all` runs all configured browser projects.
+- If `BROWSER_PROJECT` is not set, Chromium is used by default.
 
 ## 6. Evidence and Reports
 
@@ -297,8 +310,9 @@ Pipeline Stage Architecture
    to verify environment accessibility before allocating computational resources.
 2. Install & Clean: Provisions a production-ready mcr.microsoft.com/playwright:v1.60.0-noble container layer over your
    Unix socket, triggers a lightning-fast npm ci, and wipes out old logs.
-3. Execute Playwright Tests: Orchestrates test processing. Leverages catchError boundaries to ensure that even if a test
-   assertion crashes, the pipeline continues processing gracefully to preserve logs.
+3. Execute Playwright Tests: Orchestrates test processing. The Jenkins `BROWSER_PROJECT` parameter can run Chromium,
+   Firefox, WebKit or all configured browsers. Leverages catchError boundaries to ensure that even if a test assertion
+   crashes, the pipeline continues processing gracefully to preserve logs.
 4. Process Test Results & Generate Reports: Collects execution data and calls archiveArtifacts to make test results
    readily available in the Jenkins UI dashboard.
 
