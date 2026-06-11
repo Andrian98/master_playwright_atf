@@ -1,4 +1,4 @@
-import {test} from '@playwright/test';
+import {test} from '../../fixtures/appFixtures';
 import {LoginPage} from '../../pages/LoginPage';
 import {users} from '../../test-data/users';
 import {environment} from '../../config/environment';
@@ -10,8 +10,7 @@ test.describe('Login Functionality', () => {
     test.use({ storageState: { cookies: [], origins: [] } });
     let loginPage: LoginPage;
 
-    test.beforeEach(async ({page}, testInfo) => {
-        logger.info(`UI test started: ${testInfo.title}`);
+    test.beforeEach(async ({page}) => {
         loginPage = new LoginPage(page);
 
         await test.step('Open login page', async () => {
@@ -19,14 +18,6 @@ test.describe('Login Functionality', () => {
             await loginPage.isPageLoaded();
             logger.info('Login page loaded');
         });
-    });
-
-    test.afterEach(async ({}, testInfo) => {
-        if (testInfo.status === testInfo.expectedStatus) {
-            logger.info(`UI test finished successfully: ${testInfo.title}`);
-        } else {
-            logger.error(`UI test finished with status ${testInfo.status}: ${testInfo.title}`);
-        }
     });
 
     test('validate successful login', async ({page}, testInfo) => {

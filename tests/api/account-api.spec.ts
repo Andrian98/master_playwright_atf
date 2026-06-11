@@ -9,21 +9,11 @@ import {executeApiValidationWithEvidence} from "../../utils/apiAssertionHelper";
 test.describe('Account API functionality', () => {
     let customerId: number;
 
-    test.beforeEach(async ({accountApiService}, testInfo) => {
-        logger.info(`API test started: ${testInfo.title}`);
-
+    test.beforeEach(async ({accountApiService}) => {
         await test.step('Resolve valid customer ID', async () => {
             customerId = await accountApiService.getCustomerId(users.validUser.username, users.validUser.password);
             logger.info(`Customer ID resolved for account API test: ${customerId}`);
         });
-    });
-
-    test.afterEach(async ({}, testInfo) => {
-        if (testInfo.status === testInfo.expectedStatus) {
-            logger.info(`API test finished successfully: ${testInfo.title}`);
-        } else {
-            logger.error(`API test finished with status ${testInfo.status}: ${testInfo.title}`);
-        }
     });
 
     test('create account with valid details', async ({accountApiService}, testInfo) => {

@@ -8,18 +8,6 @@ import {captureCheckpoint} from "../../utils/evidenceHelper";
 test.describe('Account Operations', () => {
     test.describe.configure({mode: 'serial'});
 
-    test.beforeEach(async ({}, testInfo) => {
-        logger.info(`UI test started: ${testInfo.title}`);
-    });
-
-    test.afterEach(async ({}, testInfo) => {
-        if (testInfo.status === testInfo.expectedStatus) {
-            logger.info(`UI test finished successfully: ${testInfo.title}`);
-        } else {
-            logger.error(`UI test finished with status ${testInfo.status}: ${testInfo.title}`);
-        }
-    });
-
     test('should open a new checking account', async ({page, openNewAccountPage, accountOverviewPage, sideMenu}, testInfo) => {
         await test.step('Open new account page', async () => {
             await page.goto(`${environment.baseUrl}${environment.openNewAccountPath}`);
