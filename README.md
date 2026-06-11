@@ -42,7 +42,7 @@ request approvals) using highly parallelized, isolated, and resilient test block
 ├── tests/
 │   ├── api/                       # API regression suites
 │   └── ui/                        # UI/E2E regression suites
-├── utils/                         # Logging, evidence, assertion, and helper utilities
+├── utils/                         # Logging, evidence, metrics, assertion, and helper utilities
 ├── global-setup.ts                # Admin setup, user registration, auth state, evidence run initialization
 ├── Jenkinsfile.groovy             # Jenkins declarative pipeline
 ├── package.json                   # NPM scripts and dependencies
@@ -105,6 +105,7 @@ across local and cloud environments.)
 ✔ Jenkins Docker Pipeline
 ✔ Evidence Retention
 ✔ Structured Logging
+✔ Resource Monitoring
 
 ## 4. Prerequisites
 
@@ -259,20 +260,26 @@ Failure artifact behavior is configured in `playwright.config.ts`:
     - Headers
     - Status codes
 * Videos: Recorded through `video: 'retain-on-failure'`.
+* Resource Metrics: CPU and RAM snapshots captured during execution.
 
 Evidence Retention Policy
 
 - Maximum 2 date folders retained
 - Maximum 5 execution runs retained per day
-- Oldest executions are removed automatically
-- Screenshots, logs and API evidence are grouped per execution
+- Oldest executions are removed automatically.
+- Screenshots, logs, metrics and API evidence are grouped per execution.
 
 All execution artifacts are cataloged inside the ./evidence and ./playwright-report directories under structured
 timestamps corresponding to the execution thread:
 
 ```Plaintext
 evidence/YYYY-MM-DD/run-YYYY-MM-DD_HH-MM-SS/ui/screenshots/
+evidence/YYYY-MM-DD/run-YYYY-MM-DD_HH-MM-SS/metrics/system-metrics.csv
+evidence/YYYY-MM-DD/run-YYYY-MM-DD_HH-MM-SS/metrics/system-metrics.json
+evidence/YYYY-MM-DD/run-YYYY-MM-DD_HH-MM-SS/metrics/system-metrics-summary.json
 ```
+
+Resource monitoring starts after the evidence run directory is initialized and stops in `global-teardown.ts`.
 
 ## 7. GitHub Actions
 

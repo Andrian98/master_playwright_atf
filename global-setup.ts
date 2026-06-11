@@ -6,11 +6,13 @@ import {users} from "./test-data/users";
 import {SideMenu} from "./pages/components/SideMenu";
 import {initializeMasterDir} from "./utils/evidenceManager";
 import {initializeLogger, logger} from "./utils/logger";
+import {startResourceMonitor} from "./utils/resourceMonitor";
 
 
 export default async function globalSetup() {
     process.env.ACTIVE_RUN_DIR = initializeMasterDir();
     initializeLogger();
+    startResourceMonitor();
     logger.info('Global setup started');
     logger.info(`Evidence directory initialized: ${process.env.ACTIVE_RUN_DIR}`);
 

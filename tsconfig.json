@@ -51,6 +51,7 @@
     "tests/**/*.ts",
     "utils/**/*.ts",
     "global-setup.ts",
+    "global-teardown.ts",
     "playwright.config.ts"
   ],
   "exclude": [
