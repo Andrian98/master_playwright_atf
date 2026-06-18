@@ -210,6 +210,24 @@ npm run test:firefox
 npm run test:browsers
 ```
 
+### Test Tags:
+
+Tests use Playwright tags to support focused execution.
+
+- `@smoke`: Critical smoke coverage.
+- `@regression`: Full regression coverage.
+- `@UI`: UI test coverage.
+- `@API`: API test coverage.
+
+Examples:
+
+```Bash
+npx playwright test --grep @smoke
+npx playwright test --grep @regression
+npx playwright test --grep @UI
+npx playwright test --grep @API
+```
+
 ### Environment Configuration:
 
 Environment and application route values are stored in `config/environment.ts`.

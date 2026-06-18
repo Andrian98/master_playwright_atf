@@ -16,7 +16,9 @@ test.describe('Account API functionality', () => {
         });
     });
 
-    test('create account with valid details', async ({accountApiService}, testInfo) => {
+    test('create account with valid details', {
+        tag: ['@smoke', '@regression', '@API'],
+    }, async ({accountApiService}, testInfo) => {
         const fromAccountId = await test.step('Get source account for new account creation', async () => {
             return await accountApiService.getFirstAccountId(customerId);
         });
@@ -38,7 +40,9 @@ test.describe('Account API functionality', () => {
         });
     });
 
-    test('user cannot create an account with the invalid id', async ({accountApiService}, testInfo) => {
+    test('user cannot create an account with the invalid id', {
+        tag: ['@smoke', '@regression', '@API'],
+    }, async ({accountApiService}, testInfo) => {
         const fromAccountId = await test.step('Get source account for invalid account creation', async () => {
             return await accountApiService.getFirstAccountId(customerId);
         });
