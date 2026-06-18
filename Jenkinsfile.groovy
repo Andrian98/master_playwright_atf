@@ -21,6 +21,26 @@ pipeline {
             choices: ['chromium', 'firefox', 'webkit', 'all'],
             description: 'Select browser project for Playwright execution'
         )
+        choice(
+            name: 'TEST_SCOPE',
+            choices: ['all', 'ui', 'api'],
+            description: 'Select test scope for Playwright execution'
+        )
+        choice(
+            name: 'HEADLESS',
+            choices: ['true', 'false'],
+            description: 'Run browser in headless mode'
+        )
+        string(
+            name: 'WORKERS',
+            defaultValue: '2',
+            description: 'Number of Playwright workers'
+        )
+        choice(
+            name: 'CAPTURE_CHECKPOINT_SCREENSHOTS',
+            choices: ['false', 'true'],
+            description: 'Enable manual checkpoint screenshots for UI evidence'
+        )
     }
 
     stages {
@@ -76,12 +96,35 @@ pipeline {
                         echo '🎭 STAGE: EXECUTING PLAYWRIGHT ATF TEST SUITE'
                         echo '=================================================='
 
-                        echo "Selected browser project: ${params.BROWSER_PROJECT}"
+                        script {
+                            def testTarget = [
+                                all: 'tests',
+                                ui : 'tests/ui',
+                                api: 'tests/api'
+                            ][params.TEST_SCOPE]
+                            def workers = params.WORKERS.trim()
 
-                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                            withDockerContainer(image: params.PLAYWRIGHT_DOCKER_IMAGE) {
-                                withEnv(["BROWSER_PROJECT=${params.BROWSER_PROJECT}"]) {
-                                    sh 'npm run test:ci'
+                            if (!(workers ==~ /^[1-9][0-9]*$/)) {
+                                error("WORKERS must be a positive integer. Current value: ${params.WORKERS}")
+                            }
+
+                            echo "Selected test scope: ${params.TEST_SCOPE}"
+                            echo "Selected browser project: ${params.BROWSER_PROJECT}"
+                            echo "Selected headless mode: ${params.HEADLESS}"
+                            echo "Selected workers: ${workers}"
+                            echo "Checkpoint screenshots enabled: ${params.CAPTURE_CHECKPOINT_SCREENSHOTS}"
+
+                            catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                                withDockerContainer(image: params.PLAYWRIGHT_DOCKER_IMAGE) {
+                                    withEnv([
+                                        'CI=true',
+                                        'NODE_OPTIONS=--no-deprecation',
+                                        "BROWSER_PROJECT=${params.BROWSER_PROJECT}",
+                                        "HEADLESS=${params.HEADLESS}",
+                                        "CAPTURE_CHECKPOINT_SCREENSHOTS=${params.CAPTURE_CHECKPOINT_SCREENSHOTS}"
+                                    ]) {
+                                        sh "npx playwright test ${testTarget} --workers=${workers} --retries=1"
+                                    }
                                 }
                             }
                         }

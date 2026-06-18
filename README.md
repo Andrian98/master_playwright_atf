@@ -232,13 +232,17 @@ The framework uses `global-setup.ts` through the `globalSetup` option in `playwr
 
 ### CI Execution Behavior:
 
-CI behavior is controlled by `CI=true` and the `test:ci` script.
+CI behavior is controlled by `CI=true`. Local CI-style execution can still use the `test:ci` script.
 
 - `forbidOnly` is enabled in CI to prevent committed `test.only` usage.
 - The Playwright config defines CI retry and worker defaults.
 - The current `npm run test:ci` command runs tests with `--workers=2 --retries=1`.
 - Jenkins runs the suite inside `mcr.microsoft.com/playwright:v1.60.0-noble`.
 - Jenkins exposes `BROWSER_PROJECT` as a build parameter with `chromium`, `firefox`, `webkit`, and `all` options.
+- Jenkins exposes `TEST_SCOPE` as a build parameter with `all`, `ui`, and `api` options.
+- Jenkins exposes `HEADLESS` as a build parameter with `true` and `false` options.
+- Jenkins exposes `WORKERS` as a build parameter to control Playwright worker count.
+- Jenkins exposes `CAPTURE_CHECKPOINT_SCREENSHOTS` as a build parameter to enable or disable manual UI checkpoint screenshots.
 
 ### Browser Projects:
 
@@ -310,11 +314,29 @@ Pipeline Stage Architecture
    to verify environment accessibility before allocating computational resources.
 2. Install & Clean: Provisions a production-ready mcr.microsoft.com/playwright:v1.60.0-noble container layer over your
    Unix socket, triggers a lightning-fast npm ci, and wipes out old logs.
-3. Execute Playwright Tests: Orchestrates test processing. The Jenkins `BROWSER_PROJECT` parameter can run Chromium,
-   Firefox, WebKit or all configured browsers. Leverages catchError boundaries to ensure that even if a test assertion
-   crashes, the pipeline continues processing gracefully to preserve logs.
+3. Execute Playwright Tests: Orchestrates test processing. Jenkins parameters can select test scope, browser project,
+   headless mode, worker count and manual screenshot evidence. Leverages catchError boundaries to ensure that even if a
+   test assertion crashes, the pipeline continues processing gracefully to preserve logs.
 4. Process Test Results & Generate Reports: Collects execution data and calls archiveArtifacts to make test results
    readily available in the Jenkins UI dashboard.
+
+Jenkins Build Parameters
+
+- `AGENT_TYPE`: Selects the Jenkins execution environment. Current value: `docker`.
+- `PLAYWRIGHT_DOCKER_IMAGE`: Defines the Docker image used by Jenkins.
+- `TEST_SCOPE`: Selects `all`, `ui`, or `api` test execution.
+- `BROWSER_PROJECT`: Selects `chromium`, `firefox`, `webkit`, or `all`.
+- `HEADLESS`: Selects browser visibility. Default should stay `true` for CI.
+- `WORKERS`: Controls the Playwright worker count.
+- `CAPTURE_CHECKPOINT_SCREENSHOTS`: Enables or disables manual checkpoint screenshots.
+
+Use `HEADLESS=false` in Jenkins only when the Jenkins environment supports visible browser execution.
+
+The Jenkins pipeline builds a command similar to:
+
+```Bash
+npx playwright test <tests|tests/ui|tests/api> --workers=<WORKERS> --retries=1
+```
 
 Local Permission Prerequisites (Rancher Desktop Only)
 If you reboot your system or restart the Jenkins controller container, open Windows PowerShell with administrative
