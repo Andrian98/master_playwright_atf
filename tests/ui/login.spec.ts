@@ -20,7 +20,9 @@ test.describe('Login Functionality', () => {
         });
     });
 
-    test('validate successful login', async ({page}, testInfo) => {
+    test('validate successful login', {
+        tag: ['@smoke', '@regression', '@UI'],
+    }, async ({page}, testInfo) => {
         const sideMenu = new SideMenu(page);
 
         await test.step('Submit valid login credentials', async () => {
@@ -34,7 +36,9 @@ test.describe('Login Functionality', () => {
         });
     });
 
-    test('validate failed login', async ({page}, testInfo) => {
+    test('validate failed login', {
+        tag: ['@smoke', '@regression', '@UI'],
+    }, async ({page}, testInfo) => {
         await test.step('Submit invalid login credentials', async () => {
             await loginPage.login(users.invalidUser.username, users.invalidUser.password);
         });

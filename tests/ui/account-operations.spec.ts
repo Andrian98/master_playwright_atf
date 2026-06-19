@@ -8,7 +8,9 @@ import {captureCheckpoint} from "../../utils/evidenceHelper";
 test.describe('Account Operations', () => {
     test.describe.configure({mode: 'serial'});
 
-    test('should open a new checking account', async ({page, openNewAccountPage, accountOverviewPage, sideMenu}, testInfo) => {
+    test('should open a new checking account', {
+        tag: ['@regression', '@UI'],
+    }, async ({page, openNewAccountPage, accountOverviewPage, sideMenu}, testInfo) => {
         await test.step('Open new account page', async () => {
             await page.goto(`${environment.baseUrl}${environment.openNewAccountPath}`);
             await openNewAccountPage.isPageLoaded();
@@ -35,7 +37,9 @@ test.describe('Account Operations', () => {
         });
     });
 
-    test('transfer funds from one account to another account', async ({page, accountOverviewPage, sideMenu, transferFundsPage}, testInfo) => {
+    test('transfer funds from one account to another account', {
+        tag: ['@regression', '@UI'],
+    }, async ({page, accountOverviewPage, sideMenu, transferFundsPage}, testInfo) => {
         await test.step('Open account overview page', async () => {
             await page.goto(`${environment.baseUrl}${environment.accountOverviewPath}`);
             await accountOverviewPage.isPageLoaded();
@@ -68,7 +72,9 @@ test.describe('Account Operations', () => {
         });
     });
 
-    test('successfully apply for a loan', async ({page, accountOverviewPage, sideMenu, requestLoanPage}, testInfo) => {
+    test('successfully apply for a loan', {
+        tag: ['@regression', '@UI'],
+    }, async ({page, accountOverviewPage, sideMenu, requestLoanPage}, testInfo) => {
         await test.step('Open account overview page', async () => {
             await page.goto(`${environment.baseUrl}${environment.accountOverviewPath}`);
             await accountOverviewPage.isPageLoaded();

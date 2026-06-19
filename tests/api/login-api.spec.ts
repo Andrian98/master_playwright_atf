@@ -7,7 +7,9 @@ import {executeApiValidationWithEvidence} from "../../utils/apiAssertionHelper";
 
 test.describe('Login API functionality', () => {
 
-    test('login with valid credentials', async ({accountApiService}, testInfo) => {
+    test('login with valid credentials', {
+        tag: ['@smoke', '@regression', '@API'],
+    }, async ({accountApiService}, testInfo) => {
         const response = await test.step('Submit valid API login request', async () => {
             return await accountApiService.login(users.validUser.username, users.validUser.password);
         });
@@ -24,7 +26,9 @@ test.describe('Login API functionality', () => {
         });
     });
 
-    test('login with invalid credentials', async ({accountApiService}, testInfo) => {
+    test('login with invalid credentials', {
+        tag: ['@smoke', '@regression', '@API'],
+    }, async ({accountApiService}, testInfo) => {
         const response = await test.step('Submit invalid API login request', async () => {
             return await accountApiService.login(users.invalidUser.username, users.invalidUser.password);
         });
