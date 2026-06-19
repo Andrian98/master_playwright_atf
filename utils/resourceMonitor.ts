@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
+import {environment} from "../config/environment";
 import {getMetricsDir} from "./evidenceManager";
 import {logger} from "./logger";
 
@@ -40,8 +41,6 @@ type ChartSeries = {
     color: string;
     values: Array<number | null>;
 };
-
-const MONITOR_INTERVAL_MS = 1000;
 
 const metrics: ResourceMetric[] = [];
 let timer: NodeJS.Timeout | null = null;
@@ -460,6 +459,15 @@ const persistHtmlReport = (summary: ResourceSummary): void => {
 };
 
 export const startResourceMonitor = (): string => {
+    if (!environment.resourceMonitoring.enabled) {
+        logger.info('Resource monitor is disabled by configuration.');
+        return getMetricsDir();
+    }
+
+    if (environment.resourceMonitoring.source !== 'local') {
+        throw new Error(`Unsupported resource monitoring source: ${environment.resourceMonitoring.source}`);
+    }
+
     if (timer) {
         return metricsDir || getMetricsDir();
     }
@@ -474,14 +482,19 @@ export const startResourceMonitor = (): string => {
     timer = setInterval(() => {
         metrics.push(captureResourceMetric());
         persistMetrics();
-    }, MONITOR_INTERVAL_MS);
+    }, environment.resourceMonitoring.intervalMs);
 
     timer.unref();
-    logger.info(`Resource monitor started. Metrics directory: ${metricsDir}`);
+    logger.info(`Resource monitor started. Source: ${environment.resourceMonitoring.source}. Interval: ${environment.resourceMonitoring.intervalMs}ms. Metrics directory: ${metricsDir}`);
     return metricsDir;
 };
 
-export const stopResourceMonitor = (): ResourceSummary => {
+export const stopResourceMonitor = (): ResourceSummary | null => {
+    if (!environment.resourceMonitoring.enabled) {
+        logger.info('Resource monitor stop skipped because monitoring is disabled.');
+        return null;
+    }
+
     if (timer) {
         clearInterval(timer);
         timer = null;

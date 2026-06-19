@@ -137,6 +137,8 @@ pipeline {
                         echo '🗄️ STAGE: COLLECTING TEST BUILD EVIDENCE & REPORTS'
                         echo '=================================================='
 
+                        echo 'Archiving Playwright report, test results, evidence, and metrics HTML report.'
+                        echo 'Metrics report path pattern: evidence/**/metrics/system-metrics-report.html'
                         archiveArtifacts artifacts: 'playwright-report/**, test-results/**, evidence/**', allowEmptyArchive: true
 
                         echo '=================================================='
