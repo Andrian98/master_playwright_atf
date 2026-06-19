@@ -237,6 +237,9 @@ Environment and application route values are stored in `config/environment.ts`.
 - Page paths such as `loginPath`, `registerPath`, `openNewAccountPath`, and `accountOverviewPath` are stored separately from tests.
 - `authStatePath` defines where the authenticated browser state is saved.
 - `captureCheckpointScreenshots` is controlled by `CAPTURE_CHECKPOINT_SCREENSHOTS`.
+- `resourceMonitoring.enabled` is controlled by `RESOURCE_MONITORING_ENABLED`.
+- `resourceMonitoring.source` is controlled by `RESOURCE_MONITORING_SOURCE`. Current supported value: `local`.
+- `resourceMonitoring.intervalMs` is controlled by `RESOURCE_MONITORING_INTERVAL_MS`.
 
 ### Global Setup:
 
@@ -295,7 +298,7 @@ Failure artifact behavior is configured in `playwright.config.ts`:
     - Headers
     - Status codes
 * Videos: Recorded through `video: 'retain-on-failure'`.
-* Resource Metrics: CPU and RAM snapshots captured during execution.
+* Resource Metrics: CPU and RAM snapshots captured during execution, with an HTML graph report generated at the end.
 
 Evidence Retention Policy
 
@@ -312,9 +315,27 @@ evidence/YYYY-MM-DD/run-YYYY-MM-DD_HH-MM-SS/ui/screenshots/
 evidence/YYYY-MM-DD/run-YYYY-MM-DD_HH-MM-SS/metrics/system-metrics.csv
 evidence/YYYY-MM-DD/run-YYYY-MM-DD_HH-MM-SS/metrics/system-metrics.json
 evidence/YYYY-MM-DD/run-YYYY-MM-DD_HH-MM-SS/metrics/system-metrics-summary.json
+evidence/YYYY-MM-DD/run-YYYY-MM-DD_HH-MM-SS/metrics/system-metrics-report.html
 ```
 
 Resource monitoring starts after the evidence run directory is initialized and stops in `global-teardown.ts`.
+The HTML metrics report shows local test runner CPU and RAM usage graphs. It does not represent server-side application resource usage.
+
+Resource monitoring can be configured with environment variables:
+
+- `RESOURCE_MONITORING_ENABLED=true|false`: Enables or disables metrics collection. Default: `true`.
+- `RESOURCE_MONITORING_SOURCE=local`: Selects the metrics source. Current supported source: `local`.
+- `RESOURCE_MONITORING_INTERVAL_MS=1000`: Controls the metrics sampling interval in milliseconds.
+- `RESOURCE_MONITORING_CHART_LABEL_INTERVAL_SECONDS=5`: Controls how often timestamp labels appear under the metrics graphs.
+
+The metrics HTML report also displays execution metadata:
+
+- Sample interval.
+- Chart label interval.
+- Browser project.
+- Test scope.
+- Resource monitoring source.
+- Worker count when provided by npm scripts or Jenkins.
 
 ## 7. GitHub Actions
 
@@ -336,7 +357,8 @@ Pipeline Stage Architecture
    headless mode, worker count and manual screenshot evidence. Leverages catchError boundaries to ensure that even if a
    test assertion crashes, the pipeline continues processing gracefully to preserve logs.
 4. Process Test Results & Generate Reports: Collects execution data and calls archiveArtifacts to make test results
-   readily available in the Jenkins UI dashboard.
+   readily available in the Jenkins UI dashboard. The metrics HTML report is archived through the `evidence/**`
+   artifact pattern.
 
 Jenkins Build Parameters
 

@@ -120,8 +120,10 @@ pipeline {
                                         'CI=true',
                                         'NODE_OPTIONS=--no-deprecation',
                                         "BROWSER_PROJECT=${params.BROWSER_PROJECT}",
+                                        "TEST_SCOPE=${params.TEST_SCOPE}",
                                         "HEADLESS=${params.HEADLESS}",
-                                        "CAPTURE_CHECKPOINT_SCREENSHOTS=${params.CAPTURE_CHECKPOINT_SCREENSHOTS}"
+                                        "CAPTURE_CHECKPOINT_SCREENSHOTS=${params.CAPTURE_CHECKPOINT_SCREENSHOTS}",
+                                        "WORKERS=${workers}"
                                     ]) {
                                         sh "npx playwright test ${testTarget} --workers=${workers} --retries=1"
                                     }
@@ -137,6 +139,8 @@ pipeline {
                         echo '🗄️ STAGE: COLLECTING TEST BUILD EVIDENCE & REPORTS'
                         echo '=================================================='
 
+                        echo 'Archiving Playwright report, test results, evidence, and metrics HTML report.'
+                        echo 'Metrics report path pattern: evidence/**/metrics/system-metrics-report.html'
                         archiveArtifacts artifacts: 'playwright-report/**, test-results/**, evidence/**', allowEmptyArchive: true
 
                         echo '=================================================='
