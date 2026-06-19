@@ -295,7 +295,7 @@ Failure artifact behavior is configured in `playwright.config.ts`:
     - Headers
     - Status codes
 * Videos: Recorded through `video: 'retain-on-failure'`.
-* Resource Metrics: CPU and RAM snapshots captured during execution.
+* Resource Metrics: CPU and RAM snapshots captured during execution, with an HTML graph report generated at the end.
 
 Evidence Retention Policy
 
@@ -312,9 +312,11 @@ evidence/YYYY-MM-DD/run-YYYY-MM-DD_HH-MM-SS/ui/screenshots/
 evidence/YYYY-MM-DD/run-YYYY-MM-DD_HH-MM-SS/metrics/system-metrics.csv
 evidence/YYYY-MM-DD/run-YYYY-MM-DD_HH-MM-SS/metrics/system-metrics.json
 evidence/YYYY-MM-DD/run-YYYY-MM-DD_HH-MM-SS/metrics/system-metrics-summary.json
+evidence/YYYY-MM-DD/run-YYYY-MM-DD_HH-MM-SS/metrics/system-metrics-report.html
 ```
 
 Resource monitoring starts after the evidence run directory is initialized and stops in `global-teardown.ts`.
+The HTML metrics report shows local test runner CPU and RAM usage graphs. It does not represent server-side application resource usage.
 
 ## 7. GitHub Actions
 
