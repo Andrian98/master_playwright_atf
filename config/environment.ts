@@ -44,5 +44,6 @@ export const environment = {
         enabled: parseBoolean(process.env.RESOURCE_MONITORING_ENABLED, true),
         source: parseResourceMonitoringSource(process.env.RESOURCE_MONITORING_SOURCE),
         intervalMs: parsePositiveInteger(process.env.RESOURCE_MONITORING_INTERVAL_MS, 1000),
+        chartLabelIntervalSeconds: parsePositiveInteger(process.env.RESOURCE_MONITORING_CHART_LABEL_INTERVAL_SECONDS, 5),
     },
 };

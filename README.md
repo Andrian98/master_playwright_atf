@@ -326,6 +326,16 @@ Resource monitoring can be configured with environment variables:
 - `RESOURCE_MONITORING_ENABLED=true|false`: Enables or disables metrics collection. Default: `true`.
 - `RESOURCE_MONITORING_SOURCE=local`: Selects the metrics source. Current supported source: `local`.
 - `RESOURCE_MONITORING_INTERVAL_MS=1000`: Controls the metrics sampling interval in milliseconds.
+- `RESOURCE_MONITORING_CHART_LABEL_INTERVAL_SECONDS=5`: Controls how often timestamp labels appear under the metrics graphs.
+
+The metrics HTML report also displays execution metadata:
+
+- Sample interval.
+- Chart label interval.
+- Browser project.
+- Test scope.
+- Resource monitoring source.
+- Worker count when provided by npm scripts or Jenkins.
 
 ## 7. GitHub Actions
 

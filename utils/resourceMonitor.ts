@@ -42,6 +42,20 @@ type ChartSeries = {
     values: Array<number | null>;
 };
 
+type ReportMetadata = {
+    sampleIntervalMs: number;
+    chartLabelIntervalSeconds: number;
+    browserProject: string;
+    testScope: string;
+    resourceMonitoringSource: string;
+    workers: string;
+};
+
+type XAxisTick = {
+    index: number;
+    label: string;
+};
+
 const metrics: ResourceMetric[] = [];
 let timer: NodeJS.Timeout | null = null;
 let previousCpuSnapshot: CpuSnapshot | null = null;
@@ -114,6 +128,70 @@ const escapeHtml = (value: string): string => {
 const formatPercent = (value: number | null): string => value === null ? 'N/A' : `${value}%`;
 
 const formatMb = (value: number): string => `${value} MB`;
+
+const formatTimeLabel = (timestamp: string): string => {
+    return new Date(timestamp).toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+    });
+};
+
+const getEnvValue = (value: string | undefined, defaultValue: string): string => {
+    if (!value || value.trim().length === 0) {
+        return defaultValue;
+    }
+
+    return value.trim();
+};
+
+const getReportMetadata = (): ReportMetadata => {
+    return {
+        sampleIntervalMs: environment.resourceMonitoring.intervalMs,
+        chartLabelIntervalSeconds: environment.resourceMonitoring.chartLabelIntervalSeconds,
+        browserProject: getEnvValue(process.env.BROWSER_PROJECT, 'chromium'),
+        testScope: getEnvValue(process.env.TEST_SCOPE, 'all'),
+        resourceMonitoringSource: environment.resourceMonitoring.source,
+        workers: getEnvValue(process.env.WORKERS, 'Playwright default'),
+    };
+};
+
+const getXAxisTicks = (): XAxisTick[] => {
+    if (metrics.length === 0) {
+        return [];
+    }
+
+    const labelIntervalMs = environment.resourceMonitoring.chartLabelIntervalSeconds * 1000;
+    const ticks: XAxisTick[] = [{
+        index: 0,
+        label: formatTimeLabel(metrics[0]!.timestamp),
+    }];
+    let nextLabelTime = Date.parse(metrics[0]!.timestamp) + labelIntervalMs;
+
+    metrics.forEach((metric, index) => {
+        const metricTime = Date.parse(metric.timestamp);
+        if (index === 0 || metricTime < nextLabelTime) {
+            return;
+        }
+
+        ticks.push({
+            index,
+            label: formatTimeLabel(metric.timestamp),
+        });
+        nextLabelTime = metricTime + labelIntervalMs;
+    });
+
+    const lastIndex = metrics.length - 1;
+    if (lastIndex > 0 && ticks[ticks.length - 1]?.index !== lastIndex) {
+        ticks.push({
+            index: lastIndex,
+            label: formatTimeLabel(metrics[lastIndex]!.timestamp),
+        });
+    }
+
+    return ticks;
+};
 
 const buildCsv = (): string => {
     const header = [
@@ -193,11 +271,11 @@ const createSummary = (finishedAt: string): ResourceSummary => {
 
 const buildLineChart = (title: string, yAxisLabel: string, series: ChartSeries[]): string => {
     const width = 900;
-    const height = 280;
+    const height = 340;
     const padding = {
         top: 24,
         right: 24,
-        bottom: 48,
+        bottom: 86,
         left: 72,
     };
     const plotWidth = width - padding.left - padding.right;
@@ -214,6 +292,7 @@ const buildLineChart = (title: string, yAxisLabel: string, series: ChartSeries[]
         return padding.left + (index / (sampleCount - 1)) * plotWidth;
     };
     const y = (value: number): number => padding.top + plotHeight - (value / yMax) * plotHeight;
+    const xAxisTicks = getXAxisTicks();
 
     const chartLines = series.map(item => {
         const points: string[] = [];
@@ -241,6 +320,15 @@ const buildLineChart = (title: string, yAxisLabel: string, series: ChartSeries[]
         `;
     }).join('\n');
 
+    const xAxisTickLabels = xAxisTicks.map(tick => {
+        const tickX = round(x(tick.index));
+        const tickY = padding.top + plotHeight;
+        return `
+            <line class="tick" x1="${tickX}" y1="${tickY}" x2="${tickX}" y2="${tickY + 6}"></line>
+            <text class="axis-label" x="${tickX}" y="${tickY + 24}" text-anchor="end" transform="rotate(-35 ${tickX} ${tickY + 24})">${escapeHtml(tick.label)}</text>
+        `;
+    }).join('\n');
+
     return `
         <section class="chart-card">
             <h2>${escapeHtml(title)}</h2>
@@ -253,8 +341,7 @@ const buildLineChart = (title: string, yAxisLabel: string, series: ChartSeries[]
                 <text class="axis-label" x="${padding.left - 12}" y="${padding.top + plotHeight / 2 + 4}" text-anchor="end">${round(yMax / 2)}</text>
                 <text class="axis-label" x="${padding.left - 12}" y="${padding.top + plotHeight + 4}" text-anchor="end">0</text>
                 <text class="axis-title" x="18" y="${padding.top + plotHeight / 2}" transform="rotate(-90 18 ${padding.top + plotHeight / 2})">${escapeHtml(yAxisLabel)}</text>
-                <text class="axis-label" x="${padding.left}" y="${padding.top + plotHeight + 24}" text-anchor="middle">start</text>
-                <text class="axis-label" x="${padding.left + plotWidth}" y="${padding.top + plotHeight + 24}" text-anchor="middle">end</text>
+                ${xAxisTickLabels}
                 ${chartLines}
                 ${legendItems}
             </svg>
@@ -271,8 +358,18 @@ const buildMetricCard = (label: string, value: string): string => {
     `;
 };
 
+const buildMetadataCard = (label: string, value: string): string => {
+    return `
+        <article class="metadata-card">
+            <span>${escapeHtml(label)}</span>
+            <strong>${escapeHtml(value)}</strong>
+        </article>
+    `;
+};
+
 const buildMetricsReportHtml = (summary: ResourceSummary): string => {
     const generatedAt = new Date().toISOString();
+    const metadata = getReportMetadata();
     const cpuChart = buildLineChart('CPU Usage Over Time', 'CPU %', [
         {
             label: 'System CPU',
@@ -383,6 +480,31 @@ const buildMetricsReportHtml = (summary: ResourceSummary): string => {
             font-size: 20px;
         }
 
+        .metadata-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .metadata-card {
+            padding: 12px 14px;
+            background: #ffffff;
+            border: 1px solid #dce2ea;
+            border-radius: 6px;
+        }
+
+        .metadata-card span {
+            display: block;
+            margin-bottom: 6px;
+            color: #526071;
+            font-size: 13px;
+        }
+
+        .metadata-card strong {
+            font-size: 16px;
+        }
+
         .chart-card {
             margin-bottom: 20px;
             padding: 18px;
@@ -398,6 +520,11 @@ const buildMetricsReportHtml = (summary: ResourceSummary): string => {
         }
 
         .axis {
+            stroke: #7d8998;
+            stroke-width: 1;
+        }
+
+        .tick {
             stroke: #7d8998;
             stroke-width: 1;
         }
@@ -436,6 +563,17 @@ const buildMetricsReportHtml = (summary: ResourceSummary): string => {
         <section class="summary">
             <h2>Run Summary</h2>
             <p>${escapeHtml(summary.summary)}</p>
+        </section>
+        <section>
+            <h2>Execution Metadata</h2>
+            <div class="metadata-grid">
+                ${buildMetadataCard('Sample Interval', `${metadata.sampleIntervalMs}ms`)}
+                ${buildMetadataCard('Chart Label Interval', `${metadata.chartLabelIntervalSeconds}s`)}
+                ${buildMetadataCard('Browser Project', metadata.browserProject)}
+                ${buildMetadataCard('Test Scope', metadata.testScope)}
+                ${buildMetadataCard('Resource Source', metadata.resourceMonitoringSource)}
+                ${buildMetadataCard('Workers', metadata.workers)}
+            </div>
         </section>
         <section class="metric-grid">
             ${buildMetricCard('Average CPU', formatPercent(summary.averageCpuUsagePercent))}

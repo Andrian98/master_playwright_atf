@@ -120,8 +120,10 @@ pipeline {
                                         'CI=true',
                                         'NODE_OPTIONS=--no-deprecation',
                                         "BROWSER_PROJECT=${params.BROWSER_PROJECT}",
+                                        "TEST_SCOPE=${params.TEST_SCOPE}",
                                         "HEADLESS=${params.HEADLESS}",
-                                        "CAPTURE_CHECKPOINT_SCREENSHOTS=${params.CAPTURE_CHECKPOINT_SCREENSHOTS}"
+                                        "CAPTURE_CHECKPOINT_SCREENSHOTS=${params.CAPTURE_CHECKPOINT_SCREENSHOTS}",
+                                        "WORKERS=${workers}"
                                     ]) {
                                         sh "npx playwright test ${testTarget} --workers=${workers} --retries=1"
                                     }
