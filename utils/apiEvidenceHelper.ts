@@ -4,6 +4,7 @@ import * as path from "node:path";
 import {logger} from "./logger";
 import {getApiEvidenceDir} from "./evidenceManager";
 import {LastRequestData} from "../api/clients/BankApiClient";
+import {redactHeaders, redactText, redactUrl} from "./redactionHelper";
 
 export const captureApiFailureEvidence = async (response: APIResponse, testName: string, requestData: LastRequestData): Promise<string> => {
     const sanitizedName = testName.toLowerCase().replace(/[^a-z0-9]/g, '-');
@@ -25,13 +26,13 @@ export const captureApiFailureEvidence = async (response: APIResponse, testName:
         `Test Case: ${testName}`,
         `===================================================================`,
         `\n--- HTTP REQUEST ---`,
-        `${requestData.method.toUpperCase()} ${requestData.url}`,
-        `Headers:\n${JSON.stringify(requestData.headers, null, 2)}`,
-        `Payload:\n${requestData.postData ? requestData.postData : '[No Request Payload]'}`,
+        `${requestData.method.toUpperCase()} ${redactUrl(requestData.url)}`,
+        `Headers:\n${JSON.stringify(redactHeaders(requestData.headers), null, 2)}`,
+        `Payload:\n${requestData.postData ? redactText(requestData.postData) : '[No Request Payload]'}`,
         `\n--- HTTP RESPONSE ---`,
         `Status: ${response.status()} ${response.statusText()}`,
-        `Headers:\n${JSON.stringify(response.headers(), null, 2)}`,
-        `Body:\n${responseBody}`,
+        `Headers:\n${JSON.stringify(redactHeaders(response.headers()), null, 2)}`,
+        `Body:\n${redactText(responseBody)}`,
         `===================================================================`
     ].join('\n');
 
